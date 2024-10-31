@@ -1,0 +1,40 @@
+auth0:
+  # Replace with the audience/identifier you configured
+  audience: http://localhost:8080
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost/multiwork?zeroDateTimeBehavior=CONVERT_TO_NULL&serverTimezone=UTC
+    username: admin
+    password: padmin
+
+  application:
+    name: kmdeckbuilder
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    defer-datasource-initialization: true
+  # The following is standard Spring Security OAuth2 configuration.
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Note the trailing slash is important!
+          issuer-uri: https://dev-ia8kmebkqhrnkdv1.eu.auth0.com/
+
+
+
+sql:
+  init:
+    mode: always
+
+crossOrigin: http://localhost:4200, https://localhost:4200
+
+#pour avoir les paramètres hibernate org.hibernate.orm.jdbc.bind: trace
+logging:
+  level:
+    org.hibernate.orm.jdbc.bind: trace
+    root: INFO
+
+

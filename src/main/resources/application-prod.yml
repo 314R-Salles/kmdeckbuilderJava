@@ -1,0 +1,25 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    defer-datasource-initialization: true
+
+  datasource:
+    url: nope
+    username: nope
+    password: nope
+
+  sql:
+    init:
+      mode: always
+
+crossOrigin: https://psalles.ovh, https://www.psalles.ovh, https://krosma.ga, https://www.krosma.ga
+
+server:
+  ssl:
+    enabled: true
+    key-store: /etc/letsencrypt/live/psalles.ovh/keystore.p12
+    key-store-password: psalles
+    keyStoreType: PKCS12
+    keyAlias: tomcat
