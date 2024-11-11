@@ -6,6 +6,7 @@ import fr.psalles.kmdeckbuilder.models.YoutubeChannelResponse;
 import fr.psalles.kmdeckbuilder.models.YoutubeSearchResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpMethod;
@@ -21,14 +22,15 @@ import java.util.stream.Collectors;
 public class YoutubeClient {
 
     @Autowired
-    BaseHttpClient client;
+    private BaseHttpClient client;
 
-    String key = "nope";
+    @Value("${youtube.key}")
+    private String key;
 
     @Cacheable("youtube_videos")
     public List<SearchResultDto> getLastVideos() {
         log.info("Api call : Youtube Search");
-        String url = "https://youtube.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=20&order=date&q=krosmaga&key="+key;
+        String url = "https://youtube.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=20&order=date&q=krosmaga&key=" + key;
 
         List<YoutubeSearchResponse.SearchResult> searchResults = client.makeCall(HttpMethod.GET, url, YoutubeSearchResponse.class, null, null).getItems();
         List<String> channelIds = searchResults.stream().map(a -> a.getSnippet().getChannelId()).distinct().collect(Collectors.toList());
@@ -43,7 +45,7 @@ public class YoutubeClient {
         int maxResults = channelIds.size();
         String params = String.join(",", channelIds); // pas besoin d'encoder le , c'est fait tout seul lors de l'appel.
         log.info("Api call : youtube channel");
-        String url = "https://youtube.googleapis.com/youtube/v3/channels?part=snippet&id=" + params + "&maxResults=" + maxResults + "&key="+key;
+        String url = "https://youtube.googleapis.com/youtube/v3/channels?part=snippet&id=" + params + "&maxResults=" + maxResults + "&key=" + key;
         return client.makeCall(HttpMethod.GET, url, YoutubeChannelResponse.class, null, null).getItems();
     }
 

@@ -6,15 +6,22 @@ spring:
     defer-datasource-initialization: true
 
   datasource:
-    url: nope
-    username: nope
-    password: nope
+    url: jdbc:mysql://127.0.0.1:3306/multiwork?zeroDateTimeBehavior=CONVERT_TO_NULL&serverTimezone=UTC
+    username: ${usernameDB}
+    password: ${passwordDB}
 
   sql:
     init:
       mode: always
 
 crossOrigin: https://psalles.ovh, https://www.psalles.ovh, https://krosma.ga, https://www.krosma.ga
+
+youtube:
+  key: ${youtubeApiKey}
+
+twitch:
+  client-id: ${twitchClientId}
+  client-secret: ${twitchClientSecret}
 
 server:
   ssl:
