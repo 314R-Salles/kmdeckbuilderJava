@@ -1,9 +1,11 @@
 package fr.psalles.kmdeckbuilder.controllers;
 
+import fr.psalles.kmdeckbuilder.models.DeckForm;
 import fr.psalles.kmdeckbuilder.models.Illustration;
 import fr.psalles.kmdeckbuilder.models.News;
 import fr.psalles.kmdeckbuilder.models.User;
 import fr.psalles.kmdeckbuilder.models.entities.projections.IllustrationView;
+import fr.psalles.kmdeckbuilder.services.DeckService;
 import fr.psalles.kmdeckbuilder.services.NewsService;
 import fr.psalles.kmdeckbuilder.services.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -22,13 +24,17 @@ public class LoggedUserApiController {
 
     private final UserService userService;
     private final NewsService newsService;
+    private final DeckService deckService;
 
 
     @Autowired
     public LoggedUserApiController(UserService userService,
-                                   NewsService newsService) {
+                                   NewsService newsService,
+                                   DeckService deckService
+    ) {
         this.userService = userService;
         this.newsService = newsService;
+        this.deckService = deckService;
     }
 
     @GetMapping("/user")
@@ -88,5 +94,12 @@ public class LoggedUserApiController {
     public String getAll(@PathVariable String id) {
         return newsService.getIllustration(id);
     }
+
+
+    @PostMapping("/deck")
+    public Long saveDeck(@RequestBody DeckForm form) {
+        return deckService.saveDeck(form);
+    }
+
 
 }

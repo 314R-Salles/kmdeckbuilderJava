@@ -1,16 +1,10 @@
 package fr.psalles.kmdeckbuilder.controllers;
 
 import fr.psalles.kmdeckbuilder.models.*;
-import fr.psalles.kmdeckbuilder.services.NewsService;
-import fr.psalles.kmdeckbuilder.services.TwitchService;
-import fr.psalles.kmdeckbuilder.services.UserService;
-import fr.psalles.kmdeckbuilder.services.YoutubeService;
+import fr.psalles.kmdeckbuilder.services.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -23,13 +17,15 @@ public class PublicApiController {
     private final YoutubeService youtubeService;
     private final NewsService newsService;
     private final UserService userService;
+    private final CardService cardService;
 
     @Autowired
-    public PublicApiController(TwitchService twitchService, YoutubeService youtubeService, NewsService newsService, UserService userService) {
+    public PublicApiController(TwitchService twitchService, YoutubeService youtubeService, NewsService newsService, UserService userService, CardService cardService) {
         this.twitchService = twitchService;
         this.youtubeService = youtubeService;
         this.newsService = newsService;
         this.userService = userService;
+        this.cardService = cardService;
     }
 
     @GetMapping("/twitch/streams")
@@ -69,5 +65,9 @@ public class PublicApiController {
     }
 
 
+    @PostMapping("/cards")
+    public List<CardDto> getCardPage(@RequestBody CardSearchForm form) {
+        return cardService.fetchWithSpecs(form).getContent();
+    }
 
 }

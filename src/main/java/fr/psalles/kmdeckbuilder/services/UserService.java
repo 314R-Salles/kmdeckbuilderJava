@@ -30,7 +30,7 @@ public class UserService {
         boolean isAdmin = principalPropertiesAccessor.isAdmin();
         Optional<UserEntity> user = userRepository.findById(userId);
         if (user.isEmpty()) {
-            return new User(userRepository.save(UserEntity.builder().id(userId).lastLogin(LocalDateTime.now()).build()), isAdmin);
+            return new User(userRepository.save(UserEntity.builder().userId(userId).lastLogin(LocalDateTime.now()).build()), isAdmin);
         } else {
             user.get().setLastLogin(LocalDateTime.now());
             return new User(userRepository.save(user.get()), isAdmin);

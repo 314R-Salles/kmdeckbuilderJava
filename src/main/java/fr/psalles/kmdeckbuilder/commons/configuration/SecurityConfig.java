@@ -34,8 +34,8 @@ public class SecurityConfig
         an OAuth2 Resource Server, using JWT validation.
         */
         http.cors(withDefaults())
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/api/public/**"))
                 .authorizeHttpRequests((authz) -> authz
-//                .anyRequest().authenticated()
                         .requestMatchers("/api/public/**").permitAll()
                         .requestMatchers("/api/authenticated/**").authenticated())
                 // secure api with admin-scope (feature payante?)

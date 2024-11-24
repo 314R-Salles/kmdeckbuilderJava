@@ -22,7 +22,7 @@ public class User {
         this.username = entity.getUsername();
         this.twitchUsername = entity.getTwitchUsername();
         this.lastLogin = entity.getLastLogin().toString();
-        this.iconId = entity.getIconId();
+        this.iconId = entity.getIconId() != null ? entity.getIconId() : 0;
         this.isAdmin = admin;
 
     }
