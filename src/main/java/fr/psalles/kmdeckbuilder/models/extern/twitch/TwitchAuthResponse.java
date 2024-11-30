@@ -1,4 +1,4 @@
-package fr.psalles.kmdeckbuilder.models;
+package fr.psalles.kmdeckbuilder.models.extern.twitch;
 
 import lombok.Data;
 

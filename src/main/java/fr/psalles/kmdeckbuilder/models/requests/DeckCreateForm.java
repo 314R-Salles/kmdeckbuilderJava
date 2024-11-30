@@ -1,6 +1,5 @@
-package fr.psalles.kmdeckbuilder.models;
+package fr.psalles.kmdeckbuilder.models.requests;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import fr.psalles.kmdeckbuilder.models.enums.CardRarity;
 import fr.psalles.kmdeckbuilder.models.enums.God;
 import lombok.AllArgsConstructor;
@@ -12,7 +11,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class DeckForm {
+public class DeckCreateForm {
 
     private List<Card> cards;
     private String name;
@@ -21,7 +20,7 @@ public class DeckForm {
     @Data
     public static class Card {
 
-       private String id;
+       private int id;
        private int count;
        private int costAP;
        private CardRarity rarity;

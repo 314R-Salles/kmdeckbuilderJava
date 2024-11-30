@@ -1,4 +1,4 @@
-package fr.psalles.kmdeckbuilder.models;
+package fr.psalles.kmdeckbuilder.models.extern.twitch;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -11,7 +11,7 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TwitchStreamResponse {
 
-    List<Stream> data;
+    private List<Stream> data;
 
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)

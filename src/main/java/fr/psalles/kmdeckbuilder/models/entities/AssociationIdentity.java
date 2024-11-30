@@ -16,6 +16,6 @@ public class AssociationIdentity {
     private Long deckId;
 
     @Column
-    private String cardId;
+    private int cardId;
 
 }

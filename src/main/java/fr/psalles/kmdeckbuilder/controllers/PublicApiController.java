@@ -1,6 +1,12 @@
 package fr.psalles.kmdeckbuilder.controllers;
 
 import fr.psalles.kmdeckbuilder.models.*;
+import fr.psalles.kmdeckbuilder.models.enums.Language;
+import fr.psalles.kmdeckbuilder.models.requests.CardSearchForm;
+import fr.psalles.kmdeckbuilder.models.requests.DeckSearchForm;
+import fr.psalles.kmdeckbuilder.models.responses.AggregatedStream;
+import fr.psalles.kmdeckbuilder.models.responses.AggregatedVod;
+import fr.psalles.kmdeckbuilder.models.responses.YoutubeSearchResultDto;
 import fr.psalles.kmdeckbuilder.services.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,10 +24,14 @@ public class PublicApiController {
     private final NewsService newsService;
     private final UserService userService;
     private final CardService cardService;
+    private final DeckService deckService;
 
     @Autowired
-    public PublicApiController(TwitchService twitchService, YoutubeService youtubeService, NewsService newsService, UserService userService, CardService cardService) {
+    public PublicApiController(TwitchService twitchService,
+                               DeckService deckService,
+                               YoutubeService youtubeService, NewsService newsService, UserService userService, CardService cardService) {
         this.twitchService = twitchService;
+        this.deckService = deckService;
         this.youtubeService = youtubeService;
         this.newsService = newsService;
         this.userService = userService;
@@ -45,7 +55,7 @@ public class PublicApiController {
     }
 
     @GetMapping("/youtube/videos")
-    public List<SearchResultDto> getLastVideos() {
+    public List<YoutubeSearchResultDto> getLastVideos() {
         return youtubeService.getVideos();
     }
 
@@ -68,6 +78,17 @@ public class PublicApiController {
     @PostMapping("/cards")
     public List<CardDto> getCardPage(@RequestBody CardSearchForm form) {
         return cardService.fetchWithSpecs(form).getContent();
+    }
+
+
+    @PostMapping("/decks")
+    public List<DeckDto> getDecks(@RequestBody DeckSearchForm form) {
+        return deckService.findDecks(form);
+    }
+
+    @GetMapping("/decks/{deckId}/language/{language}")
+    public DeckDto getDeck(@PathVariable String deckId, @PathVariable Language language) {
+        return deckService.getDeck(deckId, language);
     }
 
 }

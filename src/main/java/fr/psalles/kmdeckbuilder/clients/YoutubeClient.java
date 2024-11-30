@@ -1,9 +1,9 @@
 package fr.psalles.kmdeckbuilder.clients;
 
 import fr.psalles.kmdeckbuilder.commons.client.BaseHttpClient;
-import fr.psalles.kmdeckbuilder.models.SearchResultDto;
-import fr.psalles.kmdeckbuilder.models.YoutubeChannelResponse;
-import fr.psalles.kmdeckbuilder.models.YoutubeSearchResponse;
+import fr.psalles.kmdeckbuilder.models.responses.YoutubeSearchResultDto;
+import fr.psalles.kmdeckbuilder.models.extern.youtube.YoutubeChannelResponse;
+import fr.psalles.kmdeckbuilder.models.extern.youtube.YoutubeSearchResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,7 +28,7 @@ public class YoutubeClient {
     private String key;
 
     @Cacheable("youtube_videos")
-    public List<SearchResultDto> getLastVideos() {
+    public List<YoutubeSearchResultDto> getLastVideos() {
         log.info("Api call : Youtube Search");
         String url = "https://youtube.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=20&order=date&q=krosmaga&key=" + key;
 
@@ -38,7 +38,7 @@ public class YoutubeClient {
         Map<String, YoutubeChannelResponse.Channel> channelsMap = channels.stream()
                 .collect(Collectors.toMap(YoutubeChannelResponse.Channel::getId, Function.identity(), (a, b) -> a));
 
-        return searchResults.stream().map(searchResult -> new SearchResultDto(searchResult, channelsMap.get(searchResult.getSnippet().getChannelId()))).collect(Collectors.toList());
+        return searchResults.stream().map(searchResult -> new YoutubeSearchResultDto(searchResult, channelsMap.get(searchResult.getSnippet().getChannelId()))).collect(Collectors.toList());
     }
 
     private List<YoutubeChannelResponse.Channel> getChannels(List<String> channelIds) {

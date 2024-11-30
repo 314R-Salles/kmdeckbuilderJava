@@ -5,6 +5,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 
+
+// MARCHE PAS, coté AUTH0, j'arrive pas à ajouter le role dans le token avec des actions.
 @Component("principalPropertiesAccessor")
 public class PrincipalPropertiesAccessor {
 

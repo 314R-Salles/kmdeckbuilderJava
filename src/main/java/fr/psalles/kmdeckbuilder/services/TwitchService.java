@@ -2,8 +2,8 @@ package fr.psalles.kmdeckbuilder.services;
 
 import fr.psalles.kmdeckbuilder.clients.TwitchClient;
 import fr.psalles.kmdeckbuilder.commons.exceptions.UnauthorizedException;
-import fr.psalles.kmdeckbuilder.models.AggregatedStream;
-import fr.psalles.kmdeckbuilder.models.AggregatedVod;
+import fr.psalles.kmdeckbuilder.models.responses.AggregatedStream;
+import fr.psalles.kmdeckbuilder.models.responses.AggregatedVod;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;

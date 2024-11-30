@@ -1,5 +1,7 @@
-package fr.psalles.kmdeckbuilder.models;
+package fr.psalles.kmdeckbuilder.models.responses;
 
+import fr.psalles.kmdeckbuilder.models.extern.twitch.TwitchStreamResponse;
+import fr.psalles.kmdeckbuilder.models.extern.twitch.TwitchStreamerResponse;
 import lombok.Data;
 
 import java.math.BigDecimal;

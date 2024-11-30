@@ -1,7 +1,7 @@
 package fr.psalles.kmdeckbuilder.services;
 
 import fr.psalles.kmdeckbuilder.clients.YoutubeClient;
-import fr.psalles.kmdeckbuilder.models.SearchResultDto;
+import fr.psalles.kmdeckbuilder.models.responses.YoutubeSearchResultDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -18,7 +18,7 @@ public class YoutubeService {
         this.youtubeClient = youtubeClient;
     }
 
-    public List<SearchResultDto> getVideos() {
+    public List<YoutubeSearchResultDto> getVideos() {
         return youtubeClient.getLastVideos();
     }
 

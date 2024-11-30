@@ -1,4 +1,4 @@
-package fr.psalles.kmdeckbuilder.models;
+package fr.psalles.kmdeckbuilder.models.extern.youtube;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
@@ -10,7 +10,7 @@ import java.util.Map;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class YoutubeChannelResponse {
 
-    List<Channel> items;
+    private List<Channel> items;
 
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)

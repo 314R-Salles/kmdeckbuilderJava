@@ -1,4 +1,4 @@
-package fr.psalles.kmdeckbuilder.models;
+package fr.psalles.kmdeckbuilder.models.extern.twitch;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -10,7 +10,7 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TwitchUserResponse {
 
-    List<User> data;
+    private List<User> data;
 
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)

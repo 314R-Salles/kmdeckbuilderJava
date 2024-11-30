@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class Illustration {
-    String title;
-    String b64;
+    private String title;
+    private String b64;
 }

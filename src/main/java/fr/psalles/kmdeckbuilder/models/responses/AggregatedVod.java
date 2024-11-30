@@ -1,9 +1,10 @@
-package fr.psalles.kmdeckbuilder.models;
+package fr.psalles.kmdeckbuilder.models.responses;
 
+import fr.psalles.kmdeckbuilder.models.extern.twitch.TwitchStreamerResponse;
+import fr.psalles.kmdeckbuilder.models.extern.twitch.TwitchVideoResponse;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 @Data
 public class AggregatedVod {

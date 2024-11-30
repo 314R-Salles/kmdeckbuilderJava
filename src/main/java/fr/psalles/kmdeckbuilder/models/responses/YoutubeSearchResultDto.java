@@ -1,9 +1,11 @@
-package fr.psalles.kmdeckbuilder.models;
+package fr.psalles.kmdeckbuilder.models.responses;
 
+import fr.psalles.kmdeckbuilder.models.extern.youtube.YoutubeChannelResponse;
+import fr.psalles.kmdeckbuilder.models.extern.youtube.YoutubeSearchResponse;
 import lombok.Data;
 
 @Data
-public class SearchResultDto {
+public class YoutubeSearchResultDto {
 
     private String id;
     private String url;
@@ -14,7 +16,7 @@ public class SearchResultDto {
     private String profileImage;
 
 
-    public SearchResultDto(YoutubeSearchResponse.SearchResult originalSearchResult, YoutubeChannelResponse.Channel channel) {
+    public YoutubeSearchResultDto(YoutubeSearchResponse.SearchResult originalSearchResult, YoutubeChannelResponse.Channel channel) {
         this.id = originalSearchResult.getId().getVideoId();
         this.url = "https://www.youtube.com/watch?v=" + originalSearchResult.getId().getVideoId();
         this.channelTitle = originalSearchResult.getSnippet().getChannelTitle();

@@ -30,4 +30,8 @@ public class CardDto {
     private Integer life;
     private Integer attack;
     private Integer movementPoint;
+
+
+    // a la lecture
+    private Integer count;
 }

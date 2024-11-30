@@ -1,6 +1,6 @@
 package fr.psalles.kmdeckbuilder.controllers;
 
-import fr.psalles.kmdeckbuilder.models.DeckForm;
+import fr.psalles.kmdeckbuilder.models.requests.DeckCreateForm;
 import fr.psalles.kmdeckbuilder.models.Illustration;
 import fr.psalles.kmdeckbuilder.models.News;
 import fr.psalles.kmdeckbuilder.models.User;
@@ -97,9 +97,8 @@ public class LoggedUserApiController {
 
 
     @PostMapping("/deck")
-    public Long saveDeck(@RequestBody DeckForm form) {
+    public Long saveDeck(@RequestBody DeckCreateForm form) {
         return deckService.saveDeck(form);
     }
-
 
 }

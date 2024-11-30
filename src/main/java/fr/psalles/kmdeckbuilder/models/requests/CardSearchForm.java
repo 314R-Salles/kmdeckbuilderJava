@@ -1,4 +1,4 @@
-package fr.psalles.kmdeckbuilder.models;
+package fr.psalles.kmdeckbuilder.models.requests;
 
 import fr.psalles.kmdeckbuilder.models.enums.CardRarity;
 import fr.psalles.kmdeckbuilder.models.enums.CardType;

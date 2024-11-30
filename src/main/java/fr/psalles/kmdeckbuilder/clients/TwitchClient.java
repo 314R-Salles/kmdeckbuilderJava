@@ -1,7 +1,9 @@
 package fr.psalles.kmdeckbuilder.clients;
 
 import fr.psalles.kmdeckbuilder.commons.client.BaseHttpClient;
-import fr.psalles.kmdeckbuilder.models.*;
+import fr.psalles.kmdeckbuilder.models.extern.twitch.*;
+import fr.psalles.kmdeckbuilder.models.responses.AggregatedStream;
+import fr.psalles.kmdeckbuilder.models.responses.AggregatedVod;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

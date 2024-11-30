@@ -1,7 +1,7 @@
 package fr.psalles.kmdeckbuilder.services;
 
 import fr.psalles.kmdeckbuilder.models.CardDto;
-import fr.psalles.kmdeckbuilder.models.CardSearchForm;
+import fr.psalles.kmdeckbuilder.models.requests.CardSearchForm;
 import fr.psalles.kmdeckbuilder.models.entities.CardEntity;
 import fr.psalles.kmdeckbuilder.repositories.CardRepository;
 import org.springframework.beans.factory.annotation.Autowired;
