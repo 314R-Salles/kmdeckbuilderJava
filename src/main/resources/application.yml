@@ -32,14 +32,3 @@ spring:
 
 
 crossOrigin: http://localhost:4200, https://localhost:4200
-
-#pour avoir les paramètres hibernate org.hibernate.orm.jdbc.bind: trace
-logging:
-  level:
-    org:
-      springframework:
-        security: DEBUG
-    org.hibernate.orm.jdbc.bind: trace
-    root: INFO
-
-

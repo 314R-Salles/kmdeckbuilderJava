@@ -5,7 +5,6 @@ import fr.psalles.kmdeckbuilder.models.entities.UserEntity;
 import fr.psalles.kmdeckbuilder.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -22,18 +21,15 @@ public class UserService {
     @Autowired
     TwitchService twitchService;
 
-    @Autowired
-    PrincipalPropertiesAccessor principalPropertiesAccessor;
-
     public User checkUser() {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-        boolean isAdmin = principalPropertiesAccessor.isAdmin();
         Optional<UserEntity> user = userRepository.findById(userId);
+        // si l'utilisateur n'existe pas, initialisé
         if (user.isEmpty()) {
-            return new User(userRepository.save(UserEntity.builder().userId(userId).lastLogin(LocalDateTime.now()).build()), isAdmin);
+            return new User(userRepository.save(UserEntity.builder().userId(userId).admin(false).lastLogin(LocalDateTime.now()).build()));
         } else {
             user.get().setLastLogin(LocalDateTime.now());
-            return new User(userRepository.save(user.get()), isAdmin);
+            return new User(userRepository.save(user.get()));
         }
     }
 
@@ -51,27 +47,31 @@ public class UserService {
         }
     }
 
+    // findByUserId au lieu de findById pour avoir une méthode qui renvoie pas un Optional
+
+    // On ne save pas l'updatedUser, on extrait les données nécessaires.
+    // On ne risque pas qu'un petit malin s'update son statut Admin
     public User updateUser(User updatedUser) {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-        UserEntity user = userRepository.findById(userId).get(); // on est obligé d'avoir une valeur ici
+        UserEntity user = userRepository.findByUserId(userId);
         user.setUsername(updatedUser.getUsername());
         user.setIconId(updatedUser.getIconId());
-        return new User(userRepository.save(user), principalPropertiesAccessor.isAdmin());
+        return new User(userRepository.save(user));
     }
 
     public User linkTwitch(String token) {
         String username = this.twitchService.getUsernameFromToken(token);
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-        UserEntity user = userRepository.findById(userId).get(); // on est obligé d'avoir une valeur ici
+        UserEntity user = userRepository.findByUserId(userId);
         user.setTwitchUsername(username);
-        return new User(userRepository.save(user), principalPropertiesAccessor.isAdmin());
+        return new User(userRepository.save(user));
     }
 
     public User removeAccount() {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-        UserEntity user = userRepository.findById(userId).get(); // on est obligé d'avoir une valeur ici
+        UserEntity user = userRepository.findByUserId(userId);
         user.setTwitchUsername(null);
-        return new User(userRepository.save(user), principalPropertiesAccessor.isAdmin());
+        return new User(userRepository.save(user));
     }
 
 
