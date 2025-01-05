@@ -37,7 +37,7 @@ public class CardService {
                         .and(filterByNameLikeContent(cardFilter.getContent())
                                 .or(filterByDescriptionLikeContent(cardFilter.getContent())))
                 , PageRequest.of(cardFilter.getPageNumber(), cardFilter.getPageSize(), Sort.Direction.ASC, "costAP", "name", "cardFilePath"));
-        return  page.map(entity -> CardDto.builder()
+        return page.map(entity -> CardDto.builder()
                 .id(entity.getCardIdentity().getId())
                 .cardType(entity.getCardType())
                 .rarity(entity.getRarity())

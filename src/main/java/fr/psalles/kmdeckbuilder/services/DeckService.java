@@ -68,7 +68,7 @@ public class DeckService {
         return deckRepository.save(savedDeck).getDeckId();
     }
 
-    public List<DeckDto> findDecks(DeckSearchForm form) {
+    public Page<DeckDto> findDecks(DeckSearchForm form) {
         Page<DeckEntity> page = deckRepository.findAll(filterByGod(form.getGods())
                 , PageRequest.of(0, 20, Sort.Direction.ASC, "deckId"));
         return page.map(entity -> DeckDto.builder()
@@ -79,7 +79,7 @@ public class DeckService {
                 .creationDate(entity.getCreationDate())
                 .costAP(entity.getCostAP())
                 .costDust(entity.getCostDust())
-                .build()).getContent();
+                .build());
     }
 
     public DeckDto getDeck(String id, Language language) {
