@@ -12,9 +12,11 @@ import java.util.List;
 @AllArgsConstructor
 public class DeckSearchForm {
 
-    private String name;
+    private String content;
     private List<God> gods;
-    private Integer costAP;
-
+    private Integer actionPointCost;
+    private Integer dustCost;
+    private Boolean dustGeq;
+    private Boolean actionCostGeq;
 
 }

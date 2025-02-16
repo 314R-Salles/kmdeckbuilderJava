@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static fr.psalles.kmdeckbuilder.models.entities.specification.DeckSpecification.filterByGod;
+import static fr.psalles.kmdeckbuilder.models.entities.specification.DeckSpecification.*;
 
 
 @Slf4j
@@ -69,7 +69,13 @@ public class DeckService {
     }
 
     public Page<DeckDto> findDecks(DeckSearchForm form) {
-        Page<DeckEntity> page = deckRepository.findAll(filterByGod(form.getGods())
+        Page<DeckEntity> page = deckRepository.findAll(
+                filterByGod(form.getGods())
+                        .and(filterByDust(form.getDustCost(), form.getDustGeq()))
+                        .and(filterByAp(form.getActionPointCost(), form.getActionCostGeq()))
+                        .and(filterByAuthorLikeContent(form.getContent())
+                                .or(filterByNameLikeContent(form.getContent()))
+                        )
                 , PageRequest.of(0, 20, Sort.Direction.ASC, "deckId"));
         return page.map(entity -> DeckDto.builder()
                 .deckId(entity.getDeckId())
@@ -86,8 +92,8 @@ public class DeckService {
         DeckEntity deckEntity = deckRepository.findById(id).get();
 
 
-        Map<Integer, CardAssociation> cardMap =  deckEntity.getCards().stream()
-                .collect(Collectors.toMap(x->x.getId().getCardId(), Function.identity(), (a, b) -> a));
+        Map<Integer, CardAssociation> cardMap = deckEntity.getCards().stream()
+                .collect(Collectors.toMap(x -> x.getId().getCardId(), Function.identity(), (a, b) -> a));
 
         // pour récupérer les cartes dans la langue de l'utilisateur
         List<Identity> cardIds = deckEntity.getCards().stream().map(cardAssociation -> new Identity(cardAssociation.getId().getCardId(), language)).toList();
