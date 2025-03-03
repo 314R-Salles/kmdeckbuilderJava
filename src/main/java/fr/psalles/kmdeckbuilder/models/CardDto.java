@@ -34,4 +34,5 @@ public class CardDto {
 
     // a la lecture
     private Integer count;
+    private Integer infiniteLevel;
 }

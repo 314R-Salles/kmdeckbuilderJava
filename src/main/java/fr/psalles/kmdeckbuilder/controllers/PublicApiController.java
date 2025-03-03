@@ -1,6 +1,7 @@
 package fr.psalles.kmdeckbuilder.controllers;
 
 import fr.psalles.kmdeckbuilder.models.*;
+import fr.psalles.kmdeckbuilder.models.entities.projections.UserCount;
 import fr.psalles.kmdeckbuilder.models.enums.Language;
 import fr.psalles.kmdeckbuilder.models.requests.CardSearchForm;
 import fr.psalles.kmdeckbuilder.models.requests.DeckSearchForm;
@@ -82,9 +83,16 @@ public class PublicApiController {
 //    or Spring HATEOAS and Spring Data's PagedResourcesAssembler as documented in https://docs.spring.io/spring-data/commons/reference/repositories/core-extensions.html#core.web.pageables.
 
 
+    // Passer ça en endpoint privé puisque c'est que les gens connecté pour le deckbuilder qui y accède?
+    // Evite les abus?
     @PostMapping("/cards")
     public Page<CardDto> getCardPage(@RequestBody CardSearchForm form) {
         return cardService.fetchWithSpecs(form);
+    }
+
+    @PostMapping("/cards/byName")
+    public Page<CardDto> getCardPageByName(@RequestBody CardSearchForm form) {
+        return cardService.fetchByName(form);
     }
 
     @PostMapping("/decks")
@@ -95,6 +103,11 @@ public class PublicApiController {
     @GetMapping("/decks/{deckId}/language/{language}")
     public DeckDto getDeck(@PathVariable String deckId, @PathVariable Language language) {
         return deckService.getDeck(deckId, language);
+    }
+
+    @GetMapping("/decks/owners")
+    public List<UserCount> getDeck() {
+        return deckService.loadDeckOwners();
     }
 
 }

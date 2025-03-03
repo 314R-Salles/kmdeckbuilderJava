@@ -3,6 +3,7 @@ package fr.psalles.kmdeckbuilder.services;
 import fr.psalles.kmdeckbuilder.models.CardDto;
 import fr.psalles.kmdeckbuilder.models.DeckDto;
 import fr.psalles.kmdeckbuilder.models.entities.*;
+import fr.psalles.kmdeckbuilder.models.entities.projections.UserCount;
 import fr.psalles.kmdeckbuilder.models.enums.Language;
 import fr.psalles.kmdeckbuilder.models.requests.DeckCreateForm;
 import fr.psalles.kmdeckbuilder.models.requests.DeckSearchForm;
@@ -71,10 +72,11 @@ public class DeckService {
     public Page<DeckDto> findDecks(DeckSearchForm form) {
         Page<DeckEntity> page = deckRepository.findAll(
                 filterByGod(form.getGods())
+                        .and(filterByCards(form.getCards()))
+                        .and(filterByOwners(form.getUsers()))
                         .and(filterByDust(form.getDustCost(), form.getDustGeq()))
                         .and(filterByAp(form.getActionPointCost(), form.getActionCostGeq()))
-                        .and(filterByAuthorLikeContent(form.getContent())
-                                .or(filterByNameLikeContent(form.getContent()))
+                        .and(filterByNameLikeContent(form.getContent())
                         )
                 , PageRequest.of(0, 20, Sort.Direction.ASC, "deckId"));
         return page.map(entity -> DeckDto.builder()
@@ -128,6 +130,10 @@ public class DeckService {
                 .costAP(deckEntity.getCostAP())
                 .costDust(deckEntity.getCostDust())
                 .cards(cardDtos).build();
+    }
+
+    public List<UserCount> loadDeckOwners() {
+        return deckRepository.findAllProjectedBy();
     }
 
 }

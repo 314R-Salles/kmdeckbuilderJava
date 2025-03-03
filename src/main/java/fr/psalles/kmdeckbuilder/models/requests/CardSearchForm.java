@@ -27,7 +27,8 @@ public class CardSearchForm {
     private CardRarity rarity;
     private String language;
     private Integer family;
-    private String content;
+    private String description;
+    private String name;
     private Integer pageNumber;
     private Integer pageSize;
 
@@ -47,7 +48,8 @@ public class CardSearchForm {
                 ", rarity=" + rarity +
                 ", family=" + family +
                 ", language='" + language + '\'' +
-                ", content='" + content + '\'' +
+                ", description='" + description + '\'' +
+                ", name='" + name + '\'' +
                 ", pageNumber=" + pageNumber +
                 ", pageSize=" + pageSize +
                 '}';

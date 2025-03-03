@@ -105,7 +105,7 @@ public class CardSpecification {
 
     public static Specification<CardEntity> filterByGod(List<God> gods) {
         return (root, query, builder) -> {
-            if (gods == null) {
+            if (gods == null || gods.isEmpty()) {
                 return builder.and();
             } else {
                 CriteriaBuilder.In<God> inClause = builder.in(root.get(CardEntity_.godType));
@@ -143,7 +143,7 @@ public class CardSpecification {
             if (name == null) {
                 return builder.and();
             } else {
-                return builder.like(builder.lower(root.get(CardEntity_.name)), "%"+ name.toLowerCase()+"%");
+                return builder.like(builder.lower(root.get(CardEntity_.name)), "%" + name.toLowerCase() + "%");
             }
         };
     }
@@ -153,7 +153,7 @@ public class CardSpecification {
             if (content == null) {
                 return builder.and();
             } else {
-               return builder.like(builder.lower(root.get(CardEntity_.description)), "%"+ content.toLowerCase()+"%");
+                return builder.like(builder.lower(root.get(CardEntity_.description)), "%" + content.toLowerCase() + "%");
             }
         };
     }
