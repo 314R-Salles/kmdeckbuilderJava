@@ -1,7 +1,6 @@
 package fr.psalles.kmdeckbuilder.models;
 
 
-import fr.psalles.kmdeckbuilder.models.entities.Identity;
 import fr.psalles.kmdeckbuilder.models.enums.CardRarity;
 import fr.psalles.kmdeckbuilder.models.enums.CardType;
 import fr.psalles.kmdeckbuilder.models.enums.God;
@@ -22,8 +21,6 @@ public class CardDto {
     private Integer costAP;
     private God godType;
     private String name;
-    private String cardFilePath;
-    private String miniFilePath;
     private String infiniteName;
 
     // pour plus tard, la recherche rapide / recherche mobile

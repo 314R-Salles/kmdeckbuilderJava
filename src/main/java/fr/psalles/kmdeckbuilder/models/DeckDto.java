@@ -19,11 +19,13 @@ public class DeckDto {
     private Long deckId;
     private String name;
     private String owner;
+    private String description;
     private List<CardDto> cards;
     private God god;
     private LocalDateTime creationDate;
     private int costAP;
     private int costDust;
+    private List<HighlightDto> highlights;
 
 
 

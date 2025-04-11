@@ -18,8 +18,6 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/api/authenticated")
-// tous ces endpoints sont déjà vérouillés derriere .requestMatchers("/api/authenticated/**").authenticated())
-// Il reste à ajouter le @PreAuthorize("@principalPropertiesAccessor.isAdmin()") sur les endpoints admin
 public class LoggedUserApiController {
 
     private final UserService userService;
@@ -56,43 +54,6 @@ public class LoggedUserApiController {
     @GetMapping("/user/twitch/remove")
     public User removeAccount() {
         return userService.removeAccount();
-    }
-
-    @PostMapping("/news/disable/{id}")
-    @PreAuthorize("@principalPropertiesAccessor.isAdmin()")
-    public boolean saveNews(@PathVariable String id) {
-        return this.newsService.updateDisable(id);
-    }
-
-    // retourne toutes les news sans illu pour edition
-    @GetMapping("/news")
-    @PreAuthorize("@principalPropertiesAccessor.isAdmin()")
-    public List<News> getNews() {
-        return newsService.getAllNews();
-    }
-
-    @PostMapping("/news")
-    @PreAuthorize("@principalPropertiesAccessor.isAdmin()")
-    public void saveNews(@RequestBody News news) {
-        this.newsService.saveNews(news);
-    }
-
-    @PostMapping("/illustrations")
-    @PreAuthorize("@principalPropertiesAccessor.isAdmin()")
-    public long saveIllustration(@RequestBody Illustration illustration) {
-        return newsService.saveIllustration(illustration);
-    }
-
-    @GetMapping("/illustrations")
-    @PreAuthorize("@principalPropertiesAccessor.isAdmin()")
-    public List<IllustrationView> getAll() {
-        return newsService.getAllTitles();
-    }
-
-    @GetMapping("/illustrations/{id}")
-    @PreAuthorize("@principalPropertiesAccessor.isAdmin()")
-    public String getAll(@PathVariable String id) {
-        return newsService.getIllustration(id);
     }
 
 

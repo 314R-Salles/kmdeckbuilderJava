@@ -15,6 +15,7 @@ public class DeckCreateForm {
 
     private List<Card> cards;
     private String name;
+    private String description;
     private God god;
 
     @Data
@@ -24,7 +25,7 @@ public class DeckCreateForm {
        private int count;
        private int costAP;
        private CardRarity rarity;
-       private int hightlight;
+       private Integer highlight;
 
 
     }

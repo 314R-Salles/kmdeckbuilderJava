@@ -37,6 +37,7 @@ public class SecurityConfig
                 .csrf(csrf -> csrf.ignoringRequestMatchers("/api/public/**"))
                 .authorizeHttpRequests((authz) -> authz
                         .requestMatchers("/api/public/**").permitAll()
+                        .requestMatchers("/api/admin/**").authenticated()
                         .requestMatchers("/api/authenticated/**").authenticated())
                 // secure api with admin-scope (feature payante?)
 //                .requestMatchers("/api/private-scoped").hasAuthority("SCOPE_admin"))

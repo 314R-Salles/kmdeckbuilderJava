@@ -1,5 +1,6 @@
 package fr.psalles.kmdeckbuilder.models.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import fr.psalles.kmdeckbuilder.models.enums.CardRarity;
 import fr.psalles.kmdeckbuilder.models.enums.CardType;
 import fr.psalles.kmdeckbuilder.models.enums.God;
@@ -40,11 +41,15 @@ public class CardEntity {
     private String name;
     @Column(name = "description")
     private String description;
-    @Column(name = "cardFilePath")
-    private String cardFilePath;
-    @Column(name = "miniFilePath")
-    private String miniFilePath;
+//    @Column(name = "cardFilePath")
+//    private String cardFilePath;
+
+//    @Column(name = "miniFilePath")
+//    private String miniFilePath;
     @Column(name = "infiniteName")
     private String infiniteName;
+
+    @Column(name = "infiniteLevel")
+    private Integer infiniteLevel;
 
 }

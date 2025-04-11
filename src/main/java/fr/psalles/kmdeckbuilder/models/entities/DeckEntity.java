@@ -47,6 +47,16 @@ public class DeckEntity {
     private List<CardAssociation> cards = new ArrayList<>();
 
     @Column
+    @OneToMany(
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            mappedBy = "id.deckId" // a.b pour embeddedId
+    )
+    @JsonIgnore
+    private List<DeckHighlight> highlights = new ArrayList<>();
+
+    @Column
     private God god;
 
     @Column
@@ -57,6 +67,9 @@ public class DeckEntity {
 
     @Column
     private int costDust;
+
+    @Column(columnDefinition = "LONGTEXT")
+    private String description;
 
     @Override
     public String toString() {

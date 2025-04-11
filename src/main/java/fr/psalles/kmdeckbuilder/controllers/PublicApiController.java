@@ -1,6 +1,7 @@
 package fr.psalles.kmdeckbuilder.controllers;
 
 import fr.psalles.kmdeckbuilder.models.*;
+import fr.psalles.kmdeckbuilder.models.entities.IllustrationNameEntity;
 import fr.psalles.kmdeckbuilder.models.entities.projections.UserCount;
 import fr.psalles.kmdeckbuilder.models.enums.Language;
 import fr.psalles.kmdeckbuilder.models.requests.CardSearchForm;
@@ -27,17 +28,23 @@ public class PublicApiController {
     private final UserService userService;
     private final CardService cardService;
     private final DeckService deckService;
+    private final CardIllustrationService cardIllustrationService;
 
     @Autowired
     public PublicApiController(TwitchService twitchService,
                                DeckService deckService,
-                               YoutubeService youtubeService, NewsService newsService, UserService userService, CardService cardService) {
+                               YoutubeService youtubeService,
+                               NewsService newsService, UserService userService,
+                               CardService cardService,
+                               CardIllustrationService cardIllustrationService
+    ) {
         this.twitchService = twitchService;
         this.deckService = deckService;
         this.youtubeService = youtubeService;
         this.newsService = newsService;
         this.userService = userService;
         this.cardService = cardService;
+        this.cardIllustrationService = cardIllustrationService;
     }
 
     @GetMapping("/twitch/streams")
@@ -106,8 +113,14 @@ public class PublicApiController {
     }
 
     @GetMapping("/decks/owners")
-    public List<UserCount> getDeck() {
+    public List<UserCount> getDeckOwners() {
         return deckService.loadDeckOwners();
+    }
+
+
+    @GetMapping("/cards/illustrations")
+    public List<IllustrationNameEntity> loadAllIllustrations() {
+        return cardIllustrationService.loadAll();
     }
 
 }

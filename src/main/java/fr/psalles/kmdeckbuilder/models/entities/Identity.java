@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 @Embeddable
 @NoArgsConstructor
 @AllArgsConstructor
+// Un id composé pour les tables qui ont des traductions
 public class Identity {
 
     @Column

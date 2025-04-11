@@ -10,9 +10,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import static fr.psalles.kmdeckbuilder.models.entities.specification.CardSpecification.*;
 
 
@@ -39,7 +36,7 @@ public class CardService {
                         .and(filterByFamily(cardFilter.getFamily()))
                         .and(filterByNameLikeContent(cardFilter.getName())
                                 .or(filterByDescriptionLikeContent(cardFilter.getDescription())))
-                , PageRequest.of(cardFilter.getPageNumber(), cardFilter.getPageSize(), Sort.Direction.ASC, "costAP", "name", "cardFilePath"));
+                , PageRequest.of(cardFilter.getPageNumber(), cardFilter.getPageSize(), Sort.Direction.ASC, "costAP", "name", "infiniteLevel"));
         return page.map(entity -> CardDto.builder()
                 .id(entity.getCardIdentity().getId())
                 .cardType(entity.getCardType())
@@ -47,9 +44,8 @@ public class CardService {
                 .costAP(entity.getCostAP())
                 .godType(entity.getGodType())
                 .name(entity.getName())
-                .cardFilePath(entity.getCardFilePath())
-                .miniFilePath(entity.getMiniFilePath())
                 .infiniteName(entity.getInfiniteName())
+                .infiniteLevel(entity.getInfiniteLevel())
                 .life(entity.getLife())
                 .attack(entity.getAttack())
                 .movementPoint(entity.getMovementPoint())
@@ -60,7 +56,8 @@ public class CardService {
         Page<CardEntity> page = cardRepository.findAll(
                 filterByNameLikeContent(cardFilter.getName())
                         .and(filterByGod(cardFilter.getGods()))
-                , PageRequest.of(cardFilter.getPageNumber(), cardFilter.getPageSize(), Sort.Direction.ASC, "godType", "name", "cardFilePath"));
+                        .and(filterByLanguage(cardFilter.getLanguage()))
+                , PageRequest.of(cardFilter.getPageNumber(), cardFilter.getPageSize(), Sort.Direction.ASC, "godType", "name", "infiniteLevel"));
         return page.map(entity -> CardDto.builder()
                 .id(entity.getCardIdentity().getId())
                 .cardType(entity.getCardType())
@@ -68,10 +65,8 @@ public class CardService {
                 .costAP(entity.getCostAP())
                 .godType(entity.getGodType())
                 .name(entity.getName())
-                .infiniteLevel(getLevelFromPath(entity.getCardFilePath()))
-                .cardFilePath(entity.getCardFilePath())
-                .miniFilePath(entity.getMiniFilePath())
                 .infiniteName(entity.getInfiniteName())
+                .infiniteLevel(entity.getInfiniteLevel())
                 .life(entity.getLife())
                 .attack(entity.getAttack())
                 .movementPoint(entity.getMovementPoint())
@@ -79,14 +74,5 @@ public class CardService {
     }
 
 
-    private Integer getLevelFromPath(String path) {
-        Pattern p = Pattern.compile("niveau_(\\d+)");
-        Matcher m = p.matcher(path);
-        boolean b = m.find();
-        if (b) {
-            // pour récupérer le 1/2/3 de la rareté après niveau_
-            return Integer.parseInt(m.group(1));
-        } else return null;
-    }
 
 }
