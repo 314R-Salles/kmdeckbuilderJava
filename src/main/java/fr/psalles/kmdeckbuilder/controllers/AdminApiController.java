@@ -36,60 +36,46 @@ public class AdminApiController {
         this.tagsService = tagsService;
     }
 
-
     @PostMapping("/news/disable/{id}")
-//    @PreAuthorize("@principalPropertiesAccessor.isAdmin()")
     public boolean saveNews(@PathVariable String id) {
         return this.newsService.updateDisable(id);
     }
 
     // retourne toutes les news sans illu pour edition
     @GetMapping("/news")
-//    @PreAuthorize("@principalPropertiesAccessor.isAdmin()")
     public List<News> getNews() {
         return newsService.getAllNews();
     }
 
     @PostMapping("/news")
-//    @PreAuthorize("@principalPropertiesAccessor.isAdmin()")
     public void saveNews(@RequestBody News news) {
         this.newsService.saveNews(news);
     }
 
     @PostMapping("/illustrations")
-//    @PreAuthorize("@principalPropertiesAccessor.isAdmin()")
     public long saveIllustration(@RequestBody Illustration illustration) {
         return newsService.saveIllustration(illustration);
     }
 
     @GetMapping("/illustrations")
-//    @PreAuthorize("@principalPropertiesAccessor.isAdmin()")
     public List<IllustrationView> getAll() {
         return newsService.getAllTitles();
     }
 
     @GetMapping("/illustrations/{id}")
-//    @PreAuthorize("@principalPropertiesAccessor.isAdmin()")
     public String getAll(@PathVariable String id) {
         return newsService.getIllustration(id);
     }
 
     @GetMapping("/tags")
-//    @PreAuthorize("@principalPropertiesAccessor.isAdmin()")
     public List<TagDto> getAllTags() {
-        return tagsService.getTags(false);
-    }
-
-    @PostMapping("/tags/disable/{id}")
-//    @PreAuthorize("@principalPropertiesAccessor.isAdmin()")
-    public boolean updateTag(@PathVariable String id) {
-        return this.tagsService.updateDisable(id);
+        return tagsService.getTags();
     }
 
     @PostMapping("/tags")
-//    @PreAuthorize("@principalPropertiesAccessor.isAdmin()")
-    public int updateTag(@RequestBody TagDto tag) {
-        return this.tagsService.createTagSet(tag);
+    public boolean saveTags(@RequestBody List<TagDto> tags) {
+        this.tagsService.createTagSet(tags);
+        return true;
     }
 
 }

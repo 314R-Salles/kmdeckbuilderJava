@@ -1,4 +1,4 @@
-package fr.psalles.kmdeckbuilder.models.entities;
+package fr.psalles.kmdeckbuilder.models.entities.embedded;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
@@ -10,12 +10,12 @@ import lombok.NoArgsConstructor;
 @Embeddable
 @NoArgsConstructor
 @AllArgsConstructor
-public class AssociationIdentity {
+public class FavoriteAssociationIdentity {
 
     @Column
-    private Long deckId;
+    private String deckId;
 
     @Column
-    private int cardId;
+    private String userId;
 
 }

@@ -1,6 +1,6 @@
 package fr.psalles.kmdeckbuilder.models.entities;
 
-import fr.psalles.kmdeckbuilder.models.entities.embedded.AssociationIdentity;
+import fr.psalles.kmdeckbuilder.models.entities.embedded.FavoriteAssociationIdentity;
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
@@ -10,18 +10,19 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Data
-@Table(name = "km_deck_highlight")
+@Table(name = "km_favorite_association")
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class DeckHighlight {
+public class FavoriteAssociation {
 
     @EmbeddedId
-    private AssociationIdentity id;
-
+    private FavoriteAssociationIdentity id;
     @Column
-    private Integer highlightOrder;
+    private LocalDateTime favoriteDate;
 
 }

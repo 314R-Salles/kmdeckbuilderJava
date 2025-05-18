@@ -1,6 +1,6 @@
 package fr.psalles.kmdeckbuilder.models.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import fr.psalles.kmdeckbuilder.models.entities.embedded.Identity;
 import fr.psalles.kmdeckbuilder.models.enums.CardRarity;
 import fr.psalles.kmdeckbuilder.models.enums.CardType;
 import fr.psalles.kmdeckbuilder.models.enums.God;

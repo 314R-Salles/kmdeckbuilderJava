@@ -61,8 +61,8 @@ public class TwitchClient {
 
     public TwitchUserResponse.User getUserInfoFromAuthToken(String token) {
         TwitchUserResponse response = client.makeCall(HttpMethod.GET, "https://api.twitch.tv/helix/users", TwitchUserResponse.class, null, getAuthHeaders(token));
-        log.info("Le token reçu correspond à : {} ", response.getData().get(0).getLogin());
-        return response.getData().get(0);
+        log.info("Le token reçu correspond à : {} ", response.getData().getFirst().getLogin());
+        return response.getData().getFirst();
     }
 
     @Cacheable("twitch_token")

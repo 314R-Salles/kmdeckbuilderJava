@@ -15,10 +15,13 @@ public class DeckSearchForm {
     private String content;
     private List<God> gods;
     private List<Integer> cards;
+    private List<Integer> tags;
     private List<String> users;
     private Integer actionPointCost;
     private Integer dustCost;
     private Boolean dustGeq;
     private Boolean actionCostGeq;
+
+    private Boolean favoritesOnly;
 
 }

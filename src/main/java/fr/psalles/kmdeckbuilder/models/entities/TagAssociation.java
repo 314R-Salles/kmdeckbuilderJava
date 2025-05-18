@@ -1,7 +1,6 @@
 package fr.psalles.kmdeckbuilder.models.entities;
 
-import fr.psalles.kmdeckbuilder.models.entities.embedded.AssociationIdentity;
-import jakarta.persistence.Column;
+import fr.psalles.kmdeckbuilder.models.entities.embedded.TagAssociationIdentity;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -12,16 +11,13 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Data
-@Table(name = "km_deck_highlight")
+@Table(name = "km_tag_association")
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class DeckHighlight {
+public class TagAssociation {
 
     @EmbeddedId
-    private AssociationIdentity id;
-
-    @Column
-    private Integer highlightOrder;
+    private TagAssociationIdentity id;
 
 }

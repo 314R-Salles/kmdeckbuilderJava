@@ -9,13 +9,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TagDto {
+public class SimpleTagDto {
     private Integer id;
-    private String frTitle;
-    private String enTitle;
-    private String esTitle;
-    private String brTitle;
-    private String ruTitle;
+    private String title;
     private String iconId;
+    private Integer count;
     private boolean disabled;
 }

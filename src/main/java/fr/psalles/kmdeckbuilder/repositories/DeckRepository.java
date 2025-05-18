@@ -10,9 +10,18 @@ import java.util.List;
 
 public interface DeckRepository extends JpaRepository<DeckEntity, String>, JpaSpecificationExecutor<DeckEntity> {
 
-    @Query(value = "select username, count(*) as count " +
-            "from multiwork.km_deck kd left join multiwork.km_user ku on kd.userId = ku.userId group by  username",
+    @Query(value =
+            "select ku.username, T1.count from (select d.userId as userId,  count(*) as count\n" +
+                    "               from multiwork.km_deck d\n" +
+                    "                        INNER JOIN multiwork.km_last_version v on (d.deckId = v.deckId and d.version = v.version)\n" +
+                    "               group by d.userId) as T1 LEFT JOIN  multiwork.km_user ku on T1.userId = ku.userId ",
             nativeQuery = true)
-    List<UserCount> findAllProjectedBy();
+    List<UserCount> countOwners();
+
+    @Query(value = "select kd.* from multiwork.km_deck kd " +
+            " INNER JOIN multiwork.km_last_version v " +
+            "on (kd.deckId = v.deckId and kd.version = v.version) WHERE v.deckId = :id",
+            nativeQuery = true)
+    DeckEntity findlastVersionForDeckId(String id);
 
 }

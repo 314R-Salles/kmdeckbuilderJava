@@ -17,6 +17,7 @@ public class DeckCreateForm {
     private String name;
     private String description;
     private God god;
+    private List<Integer> tags;
 
     @Data
     public static class Card {

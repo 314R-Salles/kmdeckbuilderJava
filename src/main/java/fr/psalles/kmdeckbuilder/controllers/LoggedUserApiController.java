@@ -1,19 +1,15 @@
 package fr.psalles.kmdeckbuilder.controllers;
 
-import fr.psalles.kmdeckbuilder.models.requests.DeckCreateForm;
-import fr.psalles.kmdeckbuilder.models.Illustration;
-import fr.psalles.kmdeckbuilder.models.News;
+import fr.psalles.kmdeckbuilder.models.DeckDto;
 import fr.psalles.kmdeckbuilder.models.User;
-import fr.psalles.kmdeckbuilder.models.entities.projections.IllustrationView;
+import fr.psalles.kmdeckbuilder.models.requests.DeckCreateForm;
+import fr.psalles.kmdeckbuilder.models.requests.DeckSearchForm;
 import fr.psalles.kmdeckbuilder.services.DeckService;
-import fr.psalles.kmdeckbuilder.services.NewsService;
 import fr.psalles.kmdeckbuilder.services.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -21,17 +17,14 @@ import java.util.List;
 public class LoggedUserApiController {
 
     private final UserService userService;
-    private final NewsService newsService;
     private final DeckService deckService;
 
 
     @Autowired
     public LoggedUserApiController(UserService userService,
-                                   NewsService newsService,
                                    DeckService deckService
     ) {
         this.userService = userService;
-        this.newsService = newsService;
         this.deckService = deckService;
     }
 
@@ -57,9 +50,30 @@ public class LoggedUserApiController {
     }
 
 
+    @GetMapping("/user/favorite/add/{deckId}")
+    public boolean addFavoriteDeck(@PathVariable String deckId) {
+        return deckService.addFavoriteDeck(deckId);
+    }
+
+    @GetMapping("/user/favorite/remove/{deckId}")
+    public boolean removeFavoriteDeck(@PathVariable String deckId) {
+        return deckService.removeFavoriteDeck(deckId);
+    }
+
     @PostMapping("/deck")
-    public Long saveDeck(@RequestBody DeckCreateForm form) {
+    public String saveDeck(@RequestBody DeckCreateForm form) {
         return deckService.saveDeck(form);
     }
+
+    @PostMapping("/decks")
+    public Page<DeckDto> getDecks(@RequestBody DeckSearchForm form) {
+        return deckService.findDecks(form, true);
+    }
+
+    @PostMapping("/decks/recentFavorites")
+    public Page<DeckDto> getFavoriteDecks() {
+        return deckService.findFavoriteDecks();
+    }
+
 
 }

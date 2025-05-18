@@ -1,5 +1,6 @@
 package fr.psalles.kmdeckbuilder.models.entities;
 
+import fr.psalles.kmdeckbuilder.models.entities.embedded.AssociationIdentity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

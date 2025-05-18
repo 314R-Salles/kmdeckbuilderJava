@@ -1,7 +1,7 @@
 package fr.psalles.kmdeckbuilder.repositories;
 
 import fr.psalles.kmdeckbuilder.models.entities.CardEntity;
-import fr.psalles.kmdeckbuilder.models.entities.Identity;
+import fr.psalles.kmdeckbuilder.models.entities.embedded.Identity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;

@@ -3,7 +3,7 @@ package fr.psalles.kmdeckbuilder.models.entities.specification;
 
 import fr.psalles.kmdeckbuilder.models.entities.CardEntity;
 import fr.psalles.kmdeckbuilder.models.entities.CardEntity_;
-import fr.psalles.kmdeckbuilder.models.entities.Identity_;
+import fr.psalles.kmdeckbuilder.models.entities.embedded.Identity_;
 import fr.psalles.kmdeckbuilder.models.enums.CardRarity;
 import fr.psalles.kmdeckbuilder.models.enums.CardType;
 import fr.psalles.kmdeckbuilder.models.enums.God;

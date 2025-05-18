@@ -28,6 +28,7 @@ public class PublicApiController {
     private final UserService userService;
     private final CardService cardService;
     private final DeckService deckService;
+    private final TagsService tagsService;
     private final CardIllustrationService cardIllustrationService;
 
     @Autowired
@@ -36,12 +37,14 @@ public class PublicApiController {
                                YoutubeService youtubeService,
                                NewsService newsService, UserService userService,
                                CardService cardService,
+                               TagsService tagsService,
                                CardIllustrationService cardIllustrationService
     ) {
         this.twitchService = twitchService;
         this.deckService = deckService;
         this.youtubeService = youtubeService;
         this.newsService = newsService;
+        this.tagsService = tagsService;
         this.userService = userService;
         this.cardService = cardService;
         this.cardIllustrationService = cardIllustrationService;
@@ -104,7 +107,7 @@ public class PublicApiController {
 
     @PostMapping("/decks")
     public Page<DeckDto> getDecks(@RequestBody DeckSearchForm form) {
-        return deckService.findDecks(form);
+        return deckService.findDecks(form, false);
     }
 
     @GetMapping("/decks/{deckId}/language/{language}")
@@ -123,4 +126,8 @@ public class PublicApiController {
         return cardIllustrationService.loadAll();
     }
 
+    @GetMapping("/tags/language/{language}")
+    public List<SimpleTagDto> getAllTags(@PathVariable Language language) {
+        return tagsService.getTagsByLanguage(language);
+    }
 }

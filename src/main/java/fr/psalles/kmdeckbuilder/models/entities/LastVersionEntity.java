@@ -1,7 +1,6 @@
 package fr.psalles.kmdeckbuilder.models.entities;
 
-import fr.psalles.kmdeckbuilder.models.entities.embedded.Identity;
-import jakarta.persistence.Column;
+import fr.psalles.kmdeckbuilder.models.entities.embedded.DeckIdentity;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -13,18 +12,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "km_tags")
-public class TagEntity {
+@Table(name = "km_last_version")
+public class LastVersionEntity {
     @EmbeddedId
-    private Identity tagIdentity;
-
-    @Column
-    private String name;
-
-    @Column
-    private String iconId;
-
-    @Column
-    private boolean disabled;
+    private DeckIdentity id;
 
 }

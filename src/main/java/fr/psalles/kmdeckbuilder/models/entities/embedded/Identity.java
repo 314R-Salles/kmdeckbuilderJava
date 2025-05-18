@@ -1,4 +1,4 @@
-package fr.psalles.kmdeckbuilder.models.entities;
+package fr.psalles.kmdeckbuilder.models.entities.embedded;
 
 import fr.psalles.kmdeckbuilder.models.enums.Language;
 import jakarta.persistence.Column;
