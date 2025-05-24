@@ -1,6 +1,7 @@
 package fr.psalles.kmdeckbuilder.repositories;
 
 import fr.psalles.kmdeckbuilder.models.entities.DeckEntity;
+import fr.psalles.kmdeckbuilder.models.entities.embedded.DeckIdentity;
 import fr.psalles.kmdeckbuilder.models.entities.projections.UserCount;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -18,10 +19,22 @@ public interface DeckRepository extends JpaRepository<DeckEntity, String>, JpaSp
             nativeQuery = true)
     List<UserCount> countOwners();
 
-    @Query(value = "select kd.* from multiwork.km_deck kd " +
-            " INNER JOIN multiwork.km_last_version v " +
-            "on (kd.deckId = v.deckId and kd.version = v.version) WHERE v.deckId = :id",
+    DeckEntity findById(DeckIdentity identity);
+
+//    @Query(value = "select * from multiwork.km_deck kd  WHERE kd.deckId = :id and kd.version = " +
+//            "(SELECT MAX(version) FROM multiwork.km_last_version v where deckId = :id)",
+//            nativeQuery = true)
+//    DeckEntity findLastVersionForDeckId(String id);
+
+
+    @Query(value = "select * from multiwork.km_deck kd  WHERE kd.deckId = :id and kd.version = " +
+            "(SELECT MAX(version) FROM multiwork.km_deck where deckId = :id)",
             nativeQuery = true)
-    DeckEntity findlastVersionForDeckId(String id);
+    DeckEntity findLastVersionForDeckId(String id);
+
+
+    @Query(value = "select version from multiwork.km_deck kd  WHERE kd.deckId = :id",
+            nativeQuery = true)
+    List<Integer> findVersionNumberForDeckId(String id);
 
 }

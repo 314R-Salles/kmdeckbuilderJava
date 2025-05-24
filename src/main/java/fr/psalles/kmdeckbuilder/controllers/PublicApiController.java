@@ -110,9 +110,9 @@ public class PublicApiController {
         return deckService.findDecks(form, false);
     }
 
-    @GetMapping("/decks/{deckId}/language/{language}")
-    public DeckDto getDeck(@PathVariable String deckId, @PathVariable Language language) {
-        return deckService.getDeck(deckId, language);
+    @GetMapping("/decks/{deckId}/language/{language}/version/{version}")
+    public DeckDto getDeck(@PathVariable String deckId, @PathVariable Language language, @PathVariable Integer version) {
+        return deckService.getDeck(deckId, version, language);
     }
 
     @GetMapping("/decks/owners")

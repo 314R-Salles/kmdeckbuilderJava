@@ -25,7 +25,10 @@ public class DeckDto {
     private int costAP;
     private int costDust;
     private List<HighlightDto> highlights;
+
     private int version;
+    private List<Integer> versions;
+
     private boolean liked;
     private int favoriteCount;
 

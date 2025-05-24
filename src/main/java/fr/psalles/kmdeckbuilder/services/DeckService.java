@@ -8,9 +8,9 @@ import fr.psalles.kmdeckbuilder.models.entities.embedded.*;
 import fr.psalles.kmdeckbuilder.models.entities.projections.FavoriteCount;
 import fr.psalles.kmdeckbuilder.models.entities.projections.UserCount;
 import fr.psalles.kmdeckbuilder.models.enums.Language;
-import fr.psalles.kmdeckbuilder.models.extern.twitch.TwitchStreamerResponse;
 import fr.psalles.kmdeckbuilder.models.requests.DeckCreateForm;
 import fr.psalles.kmdeckbuilder.models.requests.DeckSearchForm;
+import fr.psalles.kmdeckbuilder.models.responses.SavedDeckResponse;
 import fr.psalles.kmdeckbuilder.repositories.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,8 +34,6 @@ import static java.util.stream.Collectors.toList;
 public class DeckService {
 
     @Autowired
-    private CardService cardService;
-    @Autowired
     private DeckRepository deckRepository;
     @Autowired
     private UserRepository userRepository;
@@ -48,11 +46,24 @@ public class DeckService {
     @Autowired
     private LastVersionRepository lastVersionRepository;
 
-    public String saveDeck(DeckCreateForm deck) {
+    public SavedDeckResponse saveDeck(DeckCreateForm deck) {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
         UserEntity user = userRepository.findById(userId).get(); // on est obligé d'avoir une valeur ici
 
         DeckEntity entity = new DeckEntity();
+
+        if (deck.getDeckId() != null) {
+            DeckEntity oldEntity = deckRepository.findLastVersionForDeckId(deck.getDeckId());
+            DeckIdentity deckIdentity = oldEntity.getId();
+            lastVersionRepository.delete(new LastVersionEntity(deckIdentity));
+            deckIdentity.setVersion(deckIdentity.getVersion() + 1);
+            entity.setId(deckIdentity);
+            lastVersionRepository.save(new LastVersionEntity(deckIdentity));
+        } else {
+            DeckIdentity deckIdentity = new DeckIdentity(UUID.randomUUID().toString(), 1);
+            entity.setId(deckIdentity);
+            lastVersionRepository.save(new LastVersionEntity(deckIdentity));
+        }
 
         entity.setName(deck.getName());
         entity.setGod(deck.getGod());
@@ -61,10 +72,6 @@ public class DeckService {
         entity.setCostDust(deck.getCards().stream().map(a -> a.getRarity().getDust() * a.getCount()).reduce(0, Integer::sum));
         entity.setUserId(user);
         entity.setDescription(deck.getDescription());
-
-        DeckIdentity deckIdentity = new DeckIdentity(UUID.randomUUID().toString(), 1);
-        entity.setId(deckIdentity);
-        lastVersionRepository.save(new LastVersionEntity(deckIdentity));
 
 //        DeckEntity savedDeck = deckRepository.save(entity);
 
@@ -92,7 +99,8 @@ public class DeckService {
                 }).toList();
 
         entity.getHighlights().addAll(highlights);
-        return deckRepository.save(entity).getId().getDeckId();
+        DeckIdentity identity =  deckRepository.save(entity).getId();
+        return SavedDeckResponse.builder().deckId(identity.getDeckId()).version(identity.getVersion()).build();
     }
 
     public Page<DeckDto> findDecks(DeckSearchForm form, boolean authenticated) {
@@ -170,8 +178,9 @@ public class DeckService {
                 .build());
     }
 
-    public DeckDto getDeck(String id, Language language) {
-        DeckEntity deckEntity = deckRepository.findlastVersionForDeckId(id);
+    public DeckDto getDeck(String id, Integer version, Language language) {
+        DeckEntity deckEntity = deckRepository.findById(new DeckIdentity(id, version));
+        List<Integer> versions = deckRepository.findVersionNumberForDeckId(id);
 
         Map<Integer, CardAssociation> cardMap = deckEntity.getCards().stream()
                 .collect(Collectors.toMap(x -> x.getId().getCardId(), Function.identity(), (a, b) -> a));
@@ -206,6 +215,12 @@ public class DeckService {
                 .description(deckEntity.getDescription())
                 .creationDate(deckEntity.getCreationDate())
                 .costAP(deckEntity.getCostAP())
+                .version(deckEntity.getId().getVersion())
+                .versions(versions)
+                .highlights(deckEntity.getHighlights().stream()
+                        .sorted(Comparator.comparingInt(DeckHighlight::getHighlightOrder))
+                        .map(a -> HighlightDto.builder().highlightOrder(a.getHighlightOrder()).cardId(a.getId().getCardId()).build())
+                        .collect(toList()))
                 .costDust(deckEntity.getCostDust())
                 .cards(cardDtos).build();
     }

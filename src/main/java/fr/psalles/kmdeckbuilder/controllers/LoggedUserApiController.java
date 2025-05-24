@@ -4,6 +4,7 @@ import fr.psalles.kmdeckbuilder.models.DeckDto;
 import fr.psalles.kmdeckbuilder.models.User;
 import fr.psalles.kmdeckbuilder.models.requests.DeckCreateForm;
 import fr.psalles.kmdeckbuilder.models.requests.DeckSearchForm;
+import fr.psalles.kmdeckbuilder.models.responses.SavedDeckResponse;
 import fr.psalles.kmdeckbuilder.services.DeckService;
 import fr.psalles.kmdeckbuilder.services.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -61,7 +62,7 @@ public class LoggedUserApiController {
     }
 
     @PostMapping("/deck")
-    public String saveDeck(@RequestBody DeckCreateForm form) {
+    public SavedDeckResponse saveDeck(@RequestBody DeckCreateForm form) {
         return deckService.saveDeck(form);
     }
 
