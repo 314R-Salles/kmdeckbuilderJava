@@ -116,7 +116,7 @@ public class DeckService {
                         .and(filterByAp(form.getActionPointCost(), form.getActionCostGeq()))
                         .and(filterByNameLikeContent(form.getContent())
                         )
-                , PageRequest.of(0, 20, Sort.Direction.ASC, "creationDate"));
+                , PageRequest.of(0, 20, Sort.Direction.DESC, "creationDate"));
 
         List<FavoriteCount> favs = favoriteRepository.countFavorites(page.stream().map(deck -> deck.getId().getDeckId()).toList());
         Map<String, Integer> mappedFavs = favs.stream().collect(Collectors.toMap(FavoriteCount::getDeckId, FavoriteCount::getCount, (a, b) -> a));
