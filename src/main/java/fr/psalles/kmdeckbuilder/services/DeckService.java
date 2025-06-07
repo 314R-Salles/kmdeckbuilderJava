@@ -1,8 +1,6 @@
 package fr.psalles.kmdeckbuilder.services;
 
-import fr.psalles.kmdeckbuilder.models.CardDto;
-import fr.psalles.kmdeckbuilder.models.DeckDto;
-import fr.psalles.kmdeckbuilder.models.HighlightDto;
+import fr.psalles.kmdeckbuilder.models.*;
 import fr.psalles.kmdeckbuilder.models.entities.*;
 import fr.psalles.kmdeckbuilder.models.entities.embedded.*;
 import fr.psalles.kmdeckbuilder.models.entities.projections.FavoriteCount;
@@ -39,6 +37,9 @@ public class DeckService {
     private UserRepository userRepository;
     @Autowired
     private CardRepository cardRepository;
+
+    @Autowired
+    private TagsService tagsService;
 
     @Autowired
     private FavoriteRepository favoriteRepository;
@@ -206,11 +207,15 @@ public class DeckService {
                         .build())
                 .toList();
 
+        List<Integer> tagIds  = deckEntity.getTags().stream().map(a->a.getId().getTagId()).toList();
+        List<SimpleTagDto> tags = tagsService.getTagsByLanguage(language).stream().filter(tag -> tagIds.contains(tag.getId())).toList();
+
         return DeckDto.builder()
                 .deckId(deckEntity.getId().getDeckId())
                 .name(deckEntity.getName())
                 .owner(deckEntity.getUserId().getUsername())
                 .cards(cardDtos)
+                .tags(tags)
                 .god(deckEntity.getGod())
                 .description(deckEntity.getDescription())
                 .creationDate(deckEntity.getCreationDate())

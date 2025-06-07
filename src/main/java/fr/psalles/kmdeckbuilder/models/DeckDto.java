@@ -28,6 +28,7 @@ public class DeckDto {
 
     private int version;
     private List<Integer> versions;
+    private List<SimpleTagDto> tags;
 
     private boolean liked;
     private int favoriteCount;

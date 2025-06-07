@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -81,7 +82,8 @@ public class TagsService {
         Map<Integer, Integer> mapCount = counts.stream().collect(Collectors.toMap(TagCount::getTagId, TagCount::getCount, (a, b) -> a));
         return flatTags.stream().map(tag -> {
                     SimpleTagDto.SimpleTagDtoBuilder builder = SimpleTagDto.builder().id(tag.getTagIdentity().getId())
-                            .count(mapCount.get(tag.getTagIdentity().getId())).iconId(tag.getIconId()).disabled(tag.isDisabled());
+                            .count(Objects.requireNonNullElse(mapCount.get(tag.getTagIdentity().getId()),0))
+                            .iconId(tag.getIconId()).disabled(tag.isDisabled());
                     switch (language) {
                         case FR -> builder.title(tag.getName());
                         case EN -> builder.title(tag.getName());
