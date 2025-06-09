@@ -100,7 +100,7 @@ public class DeckService {
                 }).toList();
 
         entity.getHighlights().addAll(highlights);
-        DeckIdentity identity =  deckRepository.save(entity).getId();
+        DeckIdentity identity = deckRepository.save(entity).getId();
         return SavedDeckResponse.builder().deckId(identity.getDeckId()).version(identity.getVersion()).build();
     }
 
@@ -128,25 +128,32 @@ public class DeckService {
             userFavs.addAll(user.getFavorites().stream().map(x -> x.getId().getDeckId()).toList());
         }
 
-        return page.map(entity -> DeckDto.builder()
-                .deckId(entity.getId().getDeckId())
-                .name(entity.getName())
-                .owner(entity.getUserId().getUsername())
-                .god(entity.getGod())
-                .creationDate(entity.getCreationDate())
-                .costAP(entity.getCostAP())
-                .version(entity.getId().getVersion())
-                .favoriteCount(mappedFavs.getOrDefault(entity.getId().getDeckId(), 0))
-                .liked(userFavs.contains(entity.getId().getDeckId()))
-                .highlights(entity.getHighlights().stream()
-                        .sorted(Comparator.comparingInt(DeckHighlight::getHighlightOrder))
-                        .map(a -> HighlightDto.builder().highlightOrder(a.getHighlightOrder()).cardId(a.getId().getCardId()).build())
-                        .collect(toList()))
-                .costDust(entity.getCostDust())
-                .build());
+        List<SimpleTagDto> allTags = tagsService.getTagsByLanguage(form.getLanguage());
+
+        return page.map(entity -> {
+            List<Integer> tagIds = entity.getTags().stream().map(a -> a.getId().getTagId()).toList();
+            List<SimpleTagDto> tags = allTags.stream().filter(tag -> tagIds.contains(tag.getId())).toList();
+            return DeckDto.builder()
+                    .deckId(entity.getId().getDeckId())
+                    .name(entity.getName())
+                    .owner(entity.getUserId().getUsername())
+                    .god(entity.getGod())
+                    .creationDate(entity.getCreationDate())
+                    .costAP(entity.getCostAP())
+                    .tags(tags)
+                    .version(entity.getId().getVersion())
+                    .favoriteCount(mappedFavs.getOrDefault(entity.getId().getDeckId(), 0))
+                    .liked(userFavs.contains(entity.getId().getDeckId()))
+                    .highlights(entity.getHighlights().stream()
+                            .sorted(Comparator.comparingInt(DeckHighlight::getHighlightOrder))
+                            .map(a -> HighlightDto.builder().highlightOrder(a.getHighlightOrder()).cardId(a.getId().getCardId()).build())
+                            .collect(toList()))
+                    .costDust(entity.getCostDust())
+                    .build();
+        });
     }
 
-    public Page<DeckDto> findFavoriteDecks() {
+    public Page<DeckDto> findFavoriteDecks(Language language) {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
 
         UserEntity user = userRepository.findById(userId).get(); // on est obligé d'avoir une valeur ici
@@ -161,22 +168,29 @@ public class DeckService {
         List<FavoriteCount> favs = favoriteRepository.countFavorites(page.stream().map(deck -> deck.getId().getDeckId()).toList());
         Map<String, Integer> mappedFavs = favs.stream().collect(Collectors.toMap(FavoriteCount::getDeckId, FavoriteCount::getCount, (a, b) -> a));
 
-        return page.map(entity -> DeckDto.builder()
-                .deckId(entity.getId().getDeckId())
-                .name(entity.getName())
-                .owner(entity.getUserId().getUsername())
-                .god(entity.getGod())
-                .creationDate(entity.getCreationDate())
-                .costAP(entity.getCostAP())
-                .version(entity.getId().getVersion())
-                .favoriteCount(mappedFavs.get(entity.getId().getDeckId())) // si on charge les favs d'un user, y'a au moins 1 like
-                .liked(true)
-                .highlights(entity.getHighlights().stream()
-                        .sorted(Comparator.comparingInt(DeckHighlight::getHighlightOrder))
-                        .map(a -> HighlightDto.builder().highlightOrder(a.getHighlightOrder()).cardId(a.getId().getCardId()).build())
-                        .collect(toList()))
-                .costDust(entity.getCostDust())
-                .build());
+        List<SimpleTagDto> allTags = tagsService.getTagsByLanguage(language);
+
+        return page.map(entity -> {
+            List<Integer> tagIds = entity.getTags().stream().map(a -> a.getId().getTagId()).toList();
+            List<SimpleTagDto> tags = allTags.stream().filter(tag -> tagIds.contains(tag.getId())).toList();
+            return DeckDto.builder()
+                    .deckId(entity.getId().getDeckId())
+                    .name(entity.getName())
+                    .owner(entity.getUserId().getUsername())
+                    .god(entity.getGod())
+                    .tags(tags)
+                    .creationDate(entity.getCreationDate())
+                    .costAP(entity.getCostAP())
+                    .version(entity.getId().getVersion())
+                    .favoriteCount(mappedFavs.get(entity.getId().getDeckId())) // si on charge les favs d'un user, y'a au moins 1 like
+                    .liked(true)
+                    .highlights(entity.getHighlights().stream()
+                            .sorted(Comparator.comparingInt(DeckHighlight::getHighlightOrder))
+                            .map(a -> HighlightDto.builder().highlightOrder(a.getHighlightOrder()).cardId(a.getId().getCardId()).build())
+                            .collect(toList()))
+                    .costDust(entity.getCostDust())
+                    .build();
+        });
     }
 
     public DeckDto getDeck(String id, Integer version, Language language) {
@@ -207,7 +221,7 @@ public class DeckService {
                         .build())
                 .toList();
 
-        List<Integer> tagIds  = deckEntity.getTags().stream().map(a->a.getId().getTagId()).toList();
+        List<Integer> tagIds = deckEntity.getTags().stream().map(a -> a.getId().getTagId()).toList();
         List<SimpleTagDto> tags = tagsService.getTagsByLanguage(language).stream().filter(tag -> tagIds.contains(tag.getId())).toList();
 
         return DeckDto.builder()

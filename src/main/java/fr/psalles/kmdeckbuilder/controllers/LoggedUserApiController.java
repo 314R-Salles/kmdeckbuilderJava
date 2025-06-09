@@ -2,6 +2,7 @@ package fr.psalles.kmdeckbuilder.controllers;
 
 import fr.psalles.kmdeckbuilder.models.DeckDto;
 import fr.psalles.kmdeckbuilder.models.User;
+import fr.psalles.kmdeckbuilder.models.enums.Language;
 import fr.psalles.kmdeckbuilder.models.requests.DeckCreateForm;
 import fr.psalles.kmdeckbuilder.models.requests.DeckSearchForm;
 import fr.psalles.kmdeckbuilder.models.responses.SavedDeckResponse;
@@ -71,9 +72,9 @@ public class LoggedUserApiController {
         return deckService.findDecks(form, true);
     }
 
-    @PostMapping("/decks/recentFavorites")
-    public Page<DeckDto> getFavoriteDecks() {
-        return deckService.findFavoriteDecks();
+    @PostMapping("/decks/recentFavorites/{language}")
+    public Page<DeckDto> getFavoriteDecks(@PathVariable Language language) {
+        return deckService.findFavoriteDecks(language);
     }
 
 

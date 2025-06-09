@@ -1,6 +1,7 @@
 package fr.psalles.kmdeckbuilder.models.requests;
 
 import fr.psalles.kmdeckbuilder.models.enums.God;
+import fr.psalles.kmdeckbuilder.models.enums.Language;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,5 +24,6 @@ public class DeckSearchForm {
     private Boolean actionCostGeq;
 
     private Boolean favoritesOnly;
+    private Language language;
 
 }
