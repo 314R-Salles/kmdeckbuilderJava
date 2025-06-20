@@ -81,7 +81,7 @@ public class TwitchClient {
     public List<AggregatedStream> getStreams(String token) {
         log.info("Api call : Streams Krosmaga");
 //      493754";
-        String url = "https://api.twitch.tv/helix/streams?game_id=493754&first=12"; // League
+        String url = "https://api.twitch.tv/helix/streams?game_id=493754&first=11"; // League
         TwitchStreamResponse streams = client.makeCall(HttpMethod.GET, url, TwitchStreamResponse.class, null, getAuthHeaders(token));
 
         // Completer les données avec l'image de profil
@@ -98,7 +98,7 @@ public class TwitchClient {
     public List<AggregatedVod> getVods(String token) {
         log.info("Api call : Vods Krosmaga");
 //       493754";
-        String url = "https://api.twitch.tv/helix/videos?game_id=493754&first=12&sort=time&type=archive"; // League
+        String url = "https://api.twitch.tv/helix/videos?game_id=493754&first=11&sort=time&type=archive"; // League
         TwitchVideoResponse vods = client.makeCall(HttpMethod.GET, url, TwitchVideoResponse.class, null, getAuthHeaders(token));
 
         // Completer les données avec l'image de profil

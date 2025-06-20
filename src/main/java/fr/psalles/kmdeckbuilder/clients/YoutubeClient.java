@@ -30,7 +30,7 @@ public class YoutubeClient {
     @Cacheable("youtube_videos")
     public List<YoutubeSearchResultDto> getLastVideos() {
         log.info("Api call : Youtube Search");
-        String url = "https://youtube.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=20&order=date&q=krosmaga&key=" + key;
+        String url = "https://youtube.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=15&order=date&q=krosmaga&key=" + key;
 
         List<YoutubeSearchResponse.SearchResult> searchResults = client.makeCall(HttpMethod.GET, url, YoutubeSearchResponse.class, null, null).getItems();
         List<String> channelIds = searchResults.stream().map(a -> a.getSnippet().getChannelId()).distinct().collect(Collectors.toList());

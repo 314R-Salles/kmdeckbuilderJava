@@ -25,7 +25,7 @@ public class YoutubeService {
     // Refresh toutes les 6h, à affiner selon les quotas
     // Quota dit : 100 requetes par jour, donc 1 toutes les 15 minutes ça passe.
 //    @Scheduled(fixedRate = 15 * 60 * 1000)
-    @Scheduled(fixedRate = 60 * 60 * 1000)
+    @Scheduled(fixedRate = 60 * 60 * 1000 * 10)
     public void evictStreams() {
         youtubeClient.evictVideos();
     }
