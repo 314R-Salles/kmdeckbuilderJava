@@ -30,7 +30,9 @@ public class YoutubeSearchResponse {
         public static class Snippet {
             private String channelId;
             private String channelTitle;
+            private String publishedAt;
             private String title;
+
             private Map<String, Thumbnail> thumbnails;
 
             @Data

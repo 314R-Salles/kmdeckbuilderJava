@@ -109,15 +109,15 @@ public class DeckService {
         Page<DeckEntity> page = deckRepository.findAll(
                 filterByGod(form.getGods())
                         .and(filterLastVersion())
-                        .and(filterFavoritesOnly(userId, authenticated && Boolean.TRUE.equals(form.getFavoritesOnly())))
+                        .and(filterFavoritesOnly(userId, authenticated && form.isFavoritesOnly()))
                         .and(filterByCards(form.getCards()))
                         .and(filterByTags(form.getTags()))
                         .and(filterByOwners(form.getUsers()))
-                        .and(filterByDust(form.getDustCost(), form.getDustGeq()))
-                        .and(filterByAp(form.getActionPointCost(), form.getActionCostGeq()))
+                        .and(filterByDust(form.getDustCost(), form.isDustGeq()))
+                        .and(filterByAp(form.getActionPointCost(), form.isActionCostGeq()))
                         .and(filterByNameLikeContent(form.getContent())
                         )
-                , PageRequest.of(0, 20, Sort.Direction.DESC, "creationDate"));
+                , PageRequest.of(form.getPage(), form.getPageSize(), Sort.Direction.DESC, "creationDate"));
 
         List<FavoriteCount> favs = favoriteRepository.countFavorites(page.stream().map(deck -> deck.getId().getDeckId()).toList());
         Map<String, Integer> mappedFavs = favs.stream().collect(Collectors.toMap(FavoriteCount::getDeckId, FavoriteCount::getCount, (a, b) -> a));

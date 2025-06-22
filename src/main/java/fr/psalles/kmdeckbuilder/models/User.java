@@ -15,7 +15,7 @@ public class User {
     String username;
     String twitchUsername;
     String lastLogin;
-    int iconId;
+    Integer iconId;
     boolean isAdmin; // attention la blague de Lombok qui transforme ça en "admin" puisqu'il voit un champ = getter
 
     public User(UserEntity entity) {

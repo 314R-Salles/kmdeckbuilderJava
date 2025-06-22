@@ -1,6 +1,7 @@
 package fr.psalles.kmdeckbuilder.clients;
 
 import fr.psalles.kmdeckbuilder.commons.client.BaseHttpClient;
+import fr.psalles.kmdeckbuilder.models.extern.youtube.YoutubeVideoResponse;
 import fr.psalles.kmdeckbuilder.models.responses.YoutubeSearchResultDto;
 import fr.psalles.kmdeckbuilder.models.extern.youtube.YoutubeChannelResponse;
 import fr.psalles.kmdeckbuilder.models.extern.youtube.YoutubeSearchResponse;
@@ -38,7 +39,18 @@ public class YoutubeClient {
         Map<String, YoutubeChannelResponse.Channel> channelsMap = channels.stream()
                 .collect(Collectors.toMap(YoutubeChannelResponse.Channel::getId, Function.identity(), (a, b) -> a));
 
-        return searchResults.stream().map(searchResult -> new YoutubeSearchResultDto(searchResult, channelsMap.get(searchResult.getSnippet().getChannelId()))).collect(Collectors.toList());
+
+        List<String> videoIds = searchResults.stream().map(video -> video.getId().getVideoId()).toList();
+        List<YoutubeVideoResponse.Video> videos = getVideos(videoIds);
+        Map<String, YoutubeVideoResponse.Video> videossMap = videos.stream()
+                .collect(Collectors.toMap(YoutubeVideoResponse.Video::getId, Function.identity(), (a, b) -> a));
+
+        return searchResults.stream().map(searchResult ->
+                new YoutubeSearchResultDto(searchResult,
+                        channelsMap.get(searchResult.getSnippet().getChannelId()),
+                        videossMap.get(searchResult.getId().getVideoId()))
+                        )
+                .collect(Collectors.toList());
     }
 
     private List<YoutubeChannelResponse.Channel> getChannels(List<String> channelIds) {
@@ -48,6 +60,14 @@ public class YoutubeClient {
         String url = "https://youtube.googleapis.com/youtube/v3/channels?part=snippet&id=" + params + "&maxResults=" + maxResults + "&key=" + key;
         return client.makeCall(HttpMethod.GET, url, YoutubeChannelResponse.class, null, null).getItems();
     }
+
+    private List<YoutubeVideoResponse.Video> getVideos(List<String> videoIds) {
+        String params = String.join(",", videoIds); // pas besoin d'encoder le , c'est fait tout seul lors de l'appel.
+        log.info("Api call : youtube videos");
+        String url = "https://youtube.googleapis.com/youtube/v3/videos?part=statistics,contentDetails&id=" + params + "&key=" + key;
+        return client.makeCall(HttpMethod.GET, url, YoutubeVideoResponse.class, null, null).getItems();
+    }
+
 
 
     @CacheEvict("youtube_videos")

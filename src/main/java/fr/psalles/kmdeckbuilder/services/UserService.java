@@ -1,5 +1,6 @@
 package fr.psalles.kmdeckbuilder.services;
 
+import fr.psalles.kmdeckbuilder.commons.exceptions.BusinessException;
 import fr.psalles.kmdeckbuilder.models.User;
 import fr.psalles.kmdeckbuilder.models.entities.UserEntity;
 import fr.psalles.kmdeckbuilder.repositories.UserRepository;
@@ -26,7 +27,7 @@ public class UserService {
         Optional<UserEntity> user = userRepository.findById(userId);
         // si l'utilisateur n'existe pas, initialisé
         if (user.isEmpty()) {
-            return new User(userRepository.save(UserEntity.builder().userId(userId).admin(false).lastLogin(LocalDateTime.now()).build()));
+            return new User(userRepository.save(UserEntity.builder().userId(userId).username("User" + userId.substring(6,13)).admin(false).lastLogin(LocalDateTime.now()).build()));
         } else {
             user.get().setLastLogin(LocalDateTime.now());
             return new User(userRepository.save(user.get()));
@@ -51,9 +52,17 @@ public class UserService {
 
     // On ne save pas l'updatedUser, on extrait les données nécessaires.
     // On ne risque pas qu'un petit malin s'update son statut Admin
+    // Enfin bon, la vraie bonne pratique c'est faire un DTO
     public User updateUser(User updatedUser) {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
         UserEntity user = userRepository.findByUserId(userId);
+
+        UserEntity userWithTargetUsername = userRepository.findByUsername(updatedUser.getUsername());
+        if(userWithTargetUsername != null && !userWithTargetUsername.getUserId().equals(userId)) {
+            log.error("{} essaie de prendre le pseudo {} mais il est déjà utilisé", userId, updatedUser.getUsername());
+            throw new BusinessException("Le pseudo est déjà pris");
+        }
+
         user.setUsername(updatedUser.getUsername());
         user.setIconId(updatedUser.getIconId());
         return new User(userRepository.save(user));

@@ -20,10 +20,13 @@ public class DeckSearchForm {
     private List<String> users;
     private Integer actionPointCost;
     private Integer dustCost;
-    private Boolean dustGeq;
-    private Boolean actionCostGeq;
+    private boolean dustGeq;
+    private boolean actionCostGeq;
 
-    private Boolean favoritesOnly;
+    private Integer page;
+    private Integer pageSize;
+
+    private boolean favoritesOnly;
     private Language language;
 
 }

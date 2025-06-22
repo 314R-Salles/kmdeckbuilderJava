@@ -27,8 +27,10 @@ spring:
       resourceserver:
         jwt:
           # Note the trailing slash is important!
-          issuer-uri: https://dev-ia8kmebkqhrnkdv1.eu.auth0.com/
+          issuer-uri: https://login.krosmaga.tools/
 
-
+#logging:
+#  level:
+#    org.springframework.security: TRACE
 
 crossOrigin: http://localhost:4200, https://localhost:4200
