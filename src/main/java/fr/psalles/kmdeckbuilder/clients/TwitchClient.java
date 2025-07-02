@@ -61,13 +61,13 @@ public class TwitchClient {
 
     public TwitchUserResponse.User getUserInfoFromAuthToken(String token) {
         TwitchUserResponse response = client.makeCall(HttpMethod.GET, "https://api.twitch.tv/helix/users", TwitchUserResponse.class, null, getAuthHeaders(token));
-        log.info("Le token reçu correspond à : {} ", response.getData().getFirst().getLogin());
+        log.debug("Le token reçu correspond à : {} ", response.getData().getFirst().getLogin());
         return response.getData().getFirst();
     }
 
     @Cacheable("twitch_token")
     public String getBearerToken() {
-        log.info("Api call : Auth twitch");
+        log.debug("Api call : Auth twitch");
         String url = "https://id.twitch.tv/oauth2/token";
         return client.makeCall(HttpMethod.POST, url, TwitchAuthResponse.class, "grant_type=client_credentials&client_secret=" +
                         clientSecret + "&client_id=" + clientId,
@@ -79,7 +79,7 @@ public class TwitchClient {
 
     @Cacheable("current_streams")
     public List<AggregatedStream> getStreams(String token) {
-        log.info("Api call : Streams Krosmaga");
+        log.debug("Api call : Streams Krosmaga");
 
         String url = "https://api.twitch.tv/helix/streams?game_id=493754&first=12"; // League
         TwitchStreamResponse streams = client.makeCall(HttpMethod.GET, url, TwitchStreamResponse.class, null, getAuthHeaders(token));
@@ -90,13 +90,12 @@ public class TwitchClient {
         Map<String, TwitchStreamerResponse.Streamer> streamerMap = streamers.getData().stream()
                 .collect(Collectors.toMap(TwitchStreamerResponse.Streamer::getUsername, Function.identity(), (a, b) -> a));
 
-        log.info("Retour de l'agrégat");
         return streams.getData().stream().map(stream -> new AggregatedStream(stream, streamerMap.get(stream.getUsername()))).collect(Collectors.toList());
     }
 
     @Cacheable("vods")
     public List<AggregatedVod> getVods(String token) {
-        log.info("Api call : Vods Krosmaga");
+        log.debug("Api call : Vods Krosmaga");
 
         String url = "https://api.twitch.tv/helix/videos?game_id=493754&first=16&sort=time&type=archive"; // League
         TwitchVideoResponse vods = client.makeCall(HttpMethod.GET, url, TwitchVideoResponse.class, null, getAuthHeaders(token));
@@ -107,12 +106,11 @@ public class TwitchClient {
         Map<String, TwitchStreamerResponse.Streamer> streamerMap = streamers.getData().stream()
                 .collect(Collectors.toMap(TwitchStreamerResponse.Streamer::getUsername, Function.identity(), (a, b) -> a));
 
-        log.info("Retour de l'agrégat");
         return vods.getData().stream().map(stream -> new AggregatedVod(stream, streamerMap.get(stream.getUsername()))).collect(Collectors.toList());
     }
 
     private TwitchStreamerResponse getStreamers(String token, List<String> usernames) {
-        log.info("Api call : streamers");
+        log.debug("Api call : streamers");
         String url = "https://api.twitch.tv/helix/users?" + getUsernameConcatenation(usernames);
         return client.makeCall(HttpMethod.GET, url, TwitchStreamerResponse.class, null, getAuthHeaders(token));
     }
@@ -132,8 +130,7 @@ public class TwitchClient {
     }
 
 
-    // Méthode private : Génération des headers pour les requêtes Twitch
-
+    // Génération des headers pour les requêtes Twitch
     private HttpHeaders getUrlEncodedHeaders() {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
