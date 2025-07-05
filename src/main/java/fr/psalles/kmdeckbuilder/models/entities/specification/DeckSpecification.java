@@ -93,12 +93,12 @@ public class DeckSpecification {
     }
 
 
-    public static CriteriaBuilder.In<String> filterByCard(Root<DeckEntity> root, CriteriaQuery query, CriteriaBuilder builder, Integer cardId) {
-        Subquery<String> subquery = query.subquery(String.class);
+    public static CriteriaBuilder.In<DeckIdentity> filterByCard(Root<DeckEntity> root, CriteriaQuery query, CriteriaBuilder builder, Integer cardId) {
+        Subquery<DeckIdentity> subquery = query.subquery(DeckIdentity.class);
         Root<CardAssociation> cardAssociation = subquery.from(CardAssociation.class);
-        subquery.select(cardAssociation.get(CardAssociation_.id).get(AssociationIdentity_.id).get(DeckIdentity_.deckId))
+        subquery.select(cardAssociation.get(CardAssociation_.id).get(AssociationIdentity_.id))
                 .where(cardAssociation.get(CardAssociation_.id).get(AssociationIdentity_.cardId).in(cardId));
-        return builder.in(root.get(DeckEntity_.id).get(DeckIdentity_.deckId)).value(subquery);
+        return builder.in(root.get(DeckEntity_.id)).value(subquery);
     }
 
     public static Specification<DeckEntity> filterByCards(List<Integer> cardIds) {
@@ -130,12 +130,12 @@ public class DeckSpecification {
         };
     }
 
-    public static CriteriaBuilder.In<String> filterByTags(Root<DeckEntity> root, CriteriaQuery query, CriteriaBuilder builder, Integer tagId) {
-        Subquery<String> subquery = query.subquery(String.class);
+    public static CriteriaBuilder.In<DeckIdentity> filterByTags(Root<DeckEntity> root, CriteriaQuery query, CriteriaBuilder builder, Integer tagId) {
+        Subquery<DeckIdentity> subquery = query.subquery(DeckIdentity.class);
         Root<TagAssociation> tagAssociation = subquery.from(TagAssociation.class);
-        subquery.select(tagAssociation.get(TagAssociation_.id).get(TagAssociationIdentity_.id).get(DeckIdentity_.deckId))
+        subquery.select(tagAssociation.get(TagAssociation_.id).get(TagAssociationIdentity_.id))
                 .where(tagAssociation.get(TagAssociation_.id).get(TagAssociationIdentity_.tagId).in(tagId));
-        return builder.in(root.get(DeckEntity_.id).get(DeckIdentity_.deckId)).value(subquery);
+        return builder.in(root.get(DeckEntity_.id)).value(subquery);
     }
 
     public static Specification<DeckEntity> filterByTags(List<Integer> tagIds) {

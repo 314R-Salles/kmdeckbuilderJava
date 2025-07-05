@@ -27,7 +27,7 @@ public class UserService {
         Optional<UserEntity> user = userRepository.findById(userId);
         // si l'utilisateur n'existe pas, initialisé
         if (user.isEmpty()) {
-            return new User(userRepository.save(UserEntity.builder().userId(userId).username("User" + userId.substring(6,13)).admin(false).lastLogin(LocalDateTime.now()).build()));
+            return new User(userRepository.save(UserEntity.builder().userId(userId).username("User" + userId.substring(6, 13)).admin(false).lastLogin(LocalDateTime.now()).build()));
         } else {
             user.get().setLastLogin(LocalDateTime.now());
             return new User(userRepository.save(user.get()));
@@ -56,9 +56,10 @@ public class UserService {
     public User updateUser(User updatedUser) {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
         UserEntity user = userRepository.findByUserId(userId);
+        log.info("{} met à jour son pseudo en {}", user.getUsername(), updatedUser.getUsername());
 
         UserEntity userWithTargetUsername = userRepository.findByUsername(updatedUser.getUsername());
-        if(userWithTargetUsername != null && !userWithTargetUsername.getUserId().equals(userId)) {
+        if (userWithTargetUsername != null && !userWithTargetUsername.getUserId().equals(userId)) {
             log.error("{} essaie de prendre le pseudo {} mais il est déjà utilisé", userId, updatedUser.getUsername());
             throw new BusinessException("Le pseudo est déjà pris");
         }
@@ -72,6 +73,7 @@ public class UserService {
         String username = this.twitchService.getUsernameFromToken(token);
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
         UserEntity user = userRepository.findByUserId(userId);
+        log.info("{} associe son compte twitch {}", user.getUsername(), username);
         user.setTwitchUsername(username);
         return new User(userRepository.save(user));
     }
@@ -79,6 +81,7 @@ public class UserService {
     public User removeAccount() {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
         UserEntity user = userRepository.findByUserId(userId);
+        log.info("{} dissocie son compte twitch", user.getUsername());
         user.setTwitchUsername(null);
         return new User(userRepository.save(user));
     }

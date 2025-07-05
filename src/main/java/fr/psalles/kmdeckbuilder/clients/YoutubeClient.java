@@ -30,7 +30,7 @@ public class YoutubeClient {
 
     @Cacheable("youtube_videos")
     public List<YoutubeSearchResultDto> getLastVideos() {
-        log.info("Api call : Youtube Search");
+        log.debug("Api call : Youtube Search");
         String url = "https://youtube.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=15&order=date&q=krosmaga&key=" + key;
 
         List<YoutubeSearchResponse.SearchResult> searchResults = client.makeCall(HttpMethod.GET, url, YoutubeSearchResponse.class, null, null).getItems();
@@ -55,15 +55,15 @@ public class YoutubeClient {
 
     private List<YoutubeChannelResponse.Channel> getChannels(List<String> channelIds) {
         int maxResults = channelIds.size();
-        String params = String.join(",", channelIds); // pas besoin d'encoder le , c'est fait tout seul lors de l'appel.
-        log.info("Api call : youtube channel");
+        String params = String.join(",", channelIds);
+        log.debug("Api call : youtube channel");
         String url = "https://youtube.googleapis.com/youtube/v3/channels?part=snippet&id=" + params + "&maxResults=" + maxResults + "&key=" + key;
         return client.makeCall(HttpMethod.GET, url, YoutubeChannelResponse.class, null, null).getItems();
     }
 
     private List<YoutubeVideoResponse.Video> getVideos(List<String> videoIds) {
         String params = String.join(",", videoIds); // pas besoin d'encoder le , c'est fait tout seul lors de l'appel.
-        log.info("Api call : youtube videos");
+        log.debug("Api call : youtube videos");
         String url = "https://youtube.googleapis.com/youtube/v3/videos?part=statistics,contentDetails&id=" + params + "&key=" + key;
         return client.makeCall(HttpMethod.GET, url, YoutubeVideoResponse.class, null, null).getItems();
     }

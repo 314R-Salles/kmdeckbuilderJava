@@ -101,6 +101,7 @@ public class DeckService {
 
         entity.getHighlights().addAll(highlights);
         DeckIdentity identity = deckRepository.save(entity).getId();
+        log.info("{} ajoute le deck {}", user.getUsername(), deck.getName());
         return SavedDeckResponse.builder().deckId(identity.getDeckId()).version(identity.getVersion()).build();
     }
 
