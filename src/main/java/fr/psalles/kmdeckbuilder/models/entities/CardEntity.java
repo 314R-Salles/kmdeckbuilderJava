@@ -26,9 +26,9 @@ public class CardEntity {
     @Column(name = "movementPoint")
     private Integer movementPoint;
     @Column(name = "family1")
-    private Integer family1;
+    private String family1;
     @Column(name = "family2")
-    private Integer family2;
+    private String family2;
     @Column(name = "extensionId")
     private String extensionId;
     @Column(name = "rarity")
