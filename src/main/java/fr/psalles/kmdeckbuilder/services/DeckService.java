@@ -53,19 +53,6 @@ public class DeckService {
 
         DeckEntity entity = new DeckEntity();
 
-        if (deck.getDeckId() != null) {
-            DeckEntity oldEntity = deckRepository.findLastVersionForDeckId(deck.getDeckId());
-            DeckIdentity deckIdentity = oldEntity.getId();
-            lastVersionRepository.delete(new LastVersionEntity(deckIdentity));
-            deckIdentity.setVersion(deckIdentity.getVersion() + 1);
-            entity.setId(deckIdentity);
-            lastVersionRepository.save(new LastVersionEntity(deckIdentity));
-        } else {
-            DeckIdentity deckIdentity = new DeckIdentity(UUID.randomUUID().toString(), 1);
-            entity.setId(deckIdentity);
-            lastVersionRepository.save(new LastVersionEntity(deckIdentity));
-        }
-
         entity.setName(deck.getName());
         entity.setGod(deck.getGod());
         entity.setCreationDate(LocalDateTime.now());
@@ -77,6 +64,42 @@ public class DeckService {
 //        DeckEntity savedDeck = deckRepository.save(entity);
 
         List<CardAssociation> associations = deck.getCards().stream().map(card -> {
+            CardAssociation cardAssociation = new CardAssociation();
+            cardAssociation.setId(new AssociationIdentity(entity.getId(), card.getId()));
+            cardAssociation.setNbrExemplaires(card.getCount());
+            return cardAssociation;
+        }).toList();
+
+        boolean isDuplicate = false;
+        if (deck.getDeckId() != null) {
+            isDuplicate = true;
+            DeckEntity oldEntity = deckRepository.findLastVersionForDeckId(deck.getDeckId());
+            DeckIdentity deckIdentity = oldEntity.getId();
+
+            List<CardAssociation> oldCardsAssociation = oldEntity.getCards();
+
+            for (int i = 0; i < associations.size(); i++) {
+                if (!oldCardsAssociation.contains(associations.get(i)))
+                    isDuplicate = false;
+            }
+
+            log.info("DECK MODIFIE ET C'EST NOUVELLE VERSION ? {}", isDuplicate);
+            if (!isDuplicate) {
+                lastVersionRepository.delete(new LastVersionEntity(deckIdentity));
+                deckIdentity.setVersion(deckIdentity.getVersion() + 1);
+                entity.setId(deckIdentity);
+                lastVersionRepository.save(new LastVersionEntity(deckIdentity));
+            }
+            else {
+                entity.setId(deckIdentity);
+            }
+        } else {
+            DeckIdentity deckIdentity = new DeckIdentity(UUID.randomUUID().toString(), 1);
+            entity.setId(deckIdentity);
+            lastVersionRepository.save(new LastVersionEntity(deckIdentity));
+        }
+
+        associations = deck.getCards().stream().map(card -> {
             CardAssociation cardAssociation = new CardAssociation();
             cardAssociation.setId(new AssociationIdentity(entity.getId(), card.getId()));
             cardAssociation.setNbrExemplaires(card.getCount());
