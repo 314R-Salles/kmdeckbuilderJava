@@ -78,9 +78,11 @@ public class DeckService {
 
             List<CardAssociation> oldCardsAssociation = oldEntity.getCards();
 
-            for (int i = 0; i < associations.size(); i++) {
-                if (!oldCardsAssociation.contains(associations.get(i)))
+            for (CardAssociation association : associations) {
+                if (!oldCardsAssociation.contains(association)) {
                     isDuplicate = false;
+                    break;
+                }
             }
 
             log.info("DECK MODIFIE ET C'EST NOUVELLE VERSION ? {}", isDuplicate);
