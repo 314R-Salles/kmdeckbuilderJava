@@ -3,8 +3,10 @@ package fr.psalles.kmdeckbuilder.repositories;
 import fr.psalles.kmdeckbuilder.models.entities.DeckEntity;
 import fr.psalles.kmdeckbuilder.models.entities.embedded.DeckIdentity;
 import fr.psalles.kmdeckbuilder.models.entities.projections.UserCount;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
@@ -36,5 +38,12 @@ public interface DeckRepository extends JpaRepository<DeckEntity, String>, JpaSp
     @Query(value = "select version from multiwork.km_deck kd  WHERE kd.deckId = :id",
             nativeQuery = true)
     List<Integer> findVersionNumberForDeckId(String id);
+
+
+    @Transactional
+    @Modifying(clearAutomatically = true)
+    @Query(value = "delete from multiwork.km_deck kd WHERE kd.deckId = :deckId and kd.version = :version", nativeQuery = true)
+    void deleteByDeckEntity(String deckId, int version);
+
 
 }

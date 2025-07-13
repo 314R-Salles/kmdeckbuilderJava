@@ -1,6 +1,9 @@
 package fr.psalles.kmdeckbuilder.services;
 
-import fr.psalles.kmdeckbuilder.models.*;
+import fr.psalles.kmdeckbuilder.models.CardDto;
+import fr.psalles.kmdeckbuilder.models.DeckDto;
+import fr.psalles.kmdeckbuilder.models.HighlightDto;
+import fr.psalles.kmdeckbuilder.models.SimpleTagDto;
 import fr.psalles.kmdeckbuilder.models.entities.*;
 import fr.psalles.kmdeckbuilder.models.entities.embedded.*;
 import fr.psalles.kmdeckbuilder.models.entities.projections.FavoriteCount;
@@ -39,6 +42,15 @@ public class DeckService {
     private CardRepository cardRepository;
 
     @Autowired
+    private TagAssociationRepository tagAssociationRepository;
+
+    @Autowired
+    private HighlightRepository highlightRepository;
+
+    @Autowired
+    private AssociationRepository associationRepository;
+
+    @Autowired
     private TagsService tagsService;
 
     @Autowired
@@ -46,6 +58,14 @@ public class DeckService {
 
     @Autowired
     private LastVersionRepository lastVersionRepository;
+
+
+    public void deleteDeckById(String id, Integer version) {
+        associationRepository.deleteByDeckEntity(id, version);
+        highlightRepository.deleteByDeckEntity(id, version);
+        tagAssociationRepository.deleteByDeckEntity(id, version);
+        deckRepository.deleteByDeckEntity(id, version);
+    }
 
     public SavedDeckResponse saveDeck(DeckCreateForm deck) {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -55,13 +75,10 @@ public class DeckService {
 
         entity.setName(deck.getName());
         entity.setGod(deck.getGod());
-        entity.setCreationDate(LocalDateTime.now());
         entity.setCostAP(deck.getCards().stream().map(a -> a.getCostAP() * a.getCount()).reduce(0, Integer::sum));
         entity.setCostDust(deck.getCards().stream().map(a -> a.getRarity().getDust() * a.getCount()).reduce(0, Integer::sum));
         entity.setUserId(user);
         entity.setDescription(deck.getDescription());
-
-//        DeckEntity savedDeck = deckRepository.save(entity);
 
         List<CardAssociation> associations = deck.getCards().stream().map(card -> {
             CardAssociation cardAssociation = new CardAssociation();
@@ -85,20 +102,22 @@ public class DeckService {
                 }
             }
 
-            log.info("DECK MODIFIE ET C'EST NOUVELLE VERSION ? {}", isDuplicate);
             if (!isDuplicate) {
                 lastVersionRepository.delete(new LastVersionEntity(deckIdentity));
                 deckIdentity.setVersion(deckIdentity.getVersion() + 1);
                 entity.setId(deckIdentity);
                 lastVersionRepository.save(new LastVersionEntity(deckIdentity));
-            }
-            else {
+                entity.setCreationDate(oldEntity.getCreationDate());
+            } else {
+                entity.setCreationDate(oldEntity.getCreationDate());
+                deleteDeckById(deckIdentity.getDeckId(), deckIdentity.getVersion());
                 entity.setId(deckIdentity);
             }
         } else {
             DeckIdentity deckIdentity = new DeckIdentity(UUID.randomUUID().toString(), 1);
             entity.setId(deckIdentity);
             lastVersionRepository.save(new LastVersionEntity(deckIdentity));
+            entity.setCreationDate(LocalDateTime.now());
         }
 
         associations = deck.getCards().stream().map(card -> {
@@ -126,7 +145,16 @@ public class DeckService {
 
         entity.getHighlights().addAll(highlights);
         DeckIdentity identity = deckRepository.save(entity).getId();
-        log.info("{} ajoute le deck {}", user.getUsername(), deck.getName());
+
+        if (deck.getDeckId() != null) {
+            if (isDuplicate) {
+                log.info("{} modifie la description du deck {}", user.getUsername(), deck.getName());
+            } else {
+                log.info("{} modifie le deck {}", user.getUsername(), deck.getName());
+            }
+        } else {
+            log.info("{} ajoute le deck {}", user.getUsername(), deck.getName());
+        }
         return SavedDeckResponse.builder().deckId(identity.getDeckId()).version(identity.getVersion()).build();
     }
 
