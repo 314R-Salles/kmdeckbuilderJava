@@ -35,6 +35,28 @@ public interface DeckRepository extends JpaRepository<DeckEntity, String>, JpaSp
     DeckEntity findLastVersionForDeckId(String id);
 
 
+    // Le modèle de données est pas clean avec le systeme de versions. Donc on met à jour le compteur sur toutes les versions
+    @Transactional
+    @Modifying
+    @Query(value = "update multiwork.km_deck kd set kd.favoriteCount =kd.favoriteCount+1  WHERE kd.deckId = :id", nativeQuery = true)
+    void addLikeOnDeck(String id);
+
+    @Transactional
+    @Modifying
+    @Query(value = "update multiwork.km_deck kd set kd.favoriteCount =kd.favoriteCount-1  WHERE kd.deckId = :id", nativeQuery = true)
+    void removeLikeOnDeck(String id);
+
+
+    // A utiliser dans un CRON tous les weekends
+    @Transactional
+    @Modifying
+    @Query(value = "UPDATE km_deck kd " +
+            " JOIN ( SELECT deckId, COUNT(*) AS cnt FROM km_favorite_association GROUP BY deckId ) AS favCounts ON kd.deckId = favCounts.deckId " +
+            " SET kd.favoriteCount = favCounts.cnt;", nativeQuery = true)
+    void initLikesOnDecks();
+
+
+
     @Query(value = "select version from multiwork.km_deck kd  WHERE kd.deckId = :id",
             nativeQuery = true)
     List<Integer> findVersionNumberForDeckId(String id);

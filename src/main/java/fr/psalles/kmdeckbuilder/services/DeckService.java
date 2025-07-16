@@ -1,5 +1,6 @@
 package fr.psalles.kmdeckbuilder.services;
 
+import fr.psalles.kmdeckbuilder.commons.exceptions.ForbiddenException;
 import fr.psalles.kmdeckbuilder.models.CardDto;
 import fr.psalles.kmdeckbuilder.models.DeckDto;
 import fr.psalles.kmdeckbuilder.models.HighlightDto;
@@ -13,11 +14,13 @@ import fr.psalles.kmdeckbuilder.models.requests.DeckCreateForm;
 import fr.psalles.kmdeckbuilder.models.requests.DeckSearchForm;
 import fr.psalles.kmdeckbuilder.models.responses.SavedDeckResponse;
 import fr.psalles.kmdeckbuilder.repositories.*;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -59,6 +62,19 @@ public class DeckService {
     @Autowired
     private LastVersionRepository lastVersionRepository;
 
+
+    // au lancement de l'appli, rafraichir le compteur de likes en base
+    @PostConstruct
+    public void init() {
+        deckRepository.initLikesOnDecks();
+    }
+
+    // une fois par semaine, rafraichir le compteur de likes en base
+    @Scheduled(cron = "0 0 0 * * SUN")
+    public void refresh() {
+        deckRepository.initLikesOnDecks();
+    }
+
     public void deleteDeckById(String id) {
         favoriteRepository.deleteByDeckEntity(id);
         associationRepository.deleteByDeckEntity(id);
@@ -77,15 +93,12 @@ public class DeckService {
     public boolean deleteDeck(String id) {
         // Some control IN CASE SOMETHING GOES WRONG IN FRONT CHECK because of circonstances of the action.
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-        UserEntity user = userRepository.findById(userId).get();
         DeckEntity deckEntity = deckRepository.findLastVersionForDeckId(id);
 
-        if (user.getUserId().equals(deckEntity.getUserId().getUserId())) {
+        if (userId.equals(deckEntity.getUserId().getUserId())) {
             deleteDeckById(id);
             return true;
-        }
-
-        return false;
+        } else throw new ForbiddenException("Le deck ne vous appartient pas");
     }
 
     public SavedDeckResponse saveDeck(DeckCreateForm deck) {
@@ -114,6 +127,9 @@ public class DeckService {
             DeckEntity oldEntity = deckRepository.findLastVersionForDeckId(deck.getDeckId());
             DeckIdentity deckIdentity = oldEntity.getId();
 
+            entity.setCreationDate(oldEntity.getCreationDate());
+            entity.setFavoriteCount(oldEntity.getFavoriteCount());
+
             List<CardAssociation> oldCardsAssociation = oldEntity.getCards();
 
             for (CardAssociation association : associations) {
@@ -128,9 +144,7 @@ public class DeckService {
                 deckIdentity.setVersion(deckIdentity.getVersion() + 1);
                 entity.setId(deckIdentity);
                 lastVersionRepository.save(new LastVersionEntity(deckIdentity));
-                entity.setCreationDate(oldEntity.getCreationDate());
             } else {
-                entity.setCreationDate(oldEntity.getCreationDate());
                 deleteDeckById(deckIdentity.getDeckId(), deckIdentity.getVersion());
                 entity.setId(deckIdentity);
             }
@@ -194,10 +208,7 @@ public class DeckService {
                         .and(filterByAp(form.getActionPointCost(), form.isActionCostGeq()))
                         .and(filterByNameLikeContent(form.getContent())
                         )
-                , PageRequest.of(form.getPage(), form.getPageSize(), Sort.Direction.DESC, "creationDate"));
-
-        List<FavoriteCount> favs = favoriteRepository.countFavorites(page.stream().map(deck -> deck.getId().getDeckId()).toList());
-        Map<String, Integer> mappedFavs = favs.stream().collect(Collectors.toMap(FavoriteCount::getDeckId, FavoriteCount::getCount, (a, b) -> a));
+                , PageRequest.of(form.getPage(), form.getPageSize(), Sort.Direction.DESC, form.getSearchBy().getFieldName()));
 
         List<String> userFavs = new ArrayList<>();
         if (authenticated) {
@@ -219,7 +230,7 @@ public class DeckService {
                     .costAP(entity.getCostAP())
                     .tags(tags)
                     .version(entity.getId().getVersion())
-                    .favoriteCount(mappedFavs.getOrDefault(entity.getId().getDeckId(), 0))
+                    .favoriteCount(entity.getFavoriteCount())
                     .liked(userFavs.contains(entity.getId().getDeckId()))
                     .highlights(entity.getHighlights().stream()
                             .sorted(Comparator.comparingInt(DeckHighlight::getHighlightOrder))
@@ -242,9 +253,6 @@ public class DeckService {
                 filterLastVersion().and(filterByIdIn(userFavs))
                 , PageRequest.of(0, 30));
 
-        List<FavoriteCount> favs = favoriteRepository.countFavorites(page.stream().map(deck -> deck.getId().getDeckId()).toList());
-        Map<String, Integer> mappedFavs = favs.stream().collect(Collectors.toMap(FavoriteCount::getDeckId, FavoriteCount::getCount, (a, b) -> a));
-
         List<SimpleTagDto> allTags = tagsService.getTagsByLanguage(language);
 
         return page.map(entity -> {
@@ -259,7 +267,7 @@ public class DeckService {
                     .creationDate(entity.getCreationDate())
                     .costAP(entity.getCostAP())
                     .version(entity.getId().getVersion())
-                    .favoriteCount(mappedFavs.get(entity.getId().getDeckId())) // si on charge les favs d'un user, y'a au moins 1 like
+                    .favoriteCount(entity.getFavoriteCount())
                     .liked(true)
                     .highlights(entity.getHighlights().stream()
                             .sorted(Comparator.comparingInt(DeckHighlight::getHighlightOrder))
@@ -313,6 +321,7 @@ public class DeckService {
                 .costAP(deckEntity.getCostAP())
                 .version(deckEntity.getId().getVersion())
                 .versions(versions)
+                .favoriteCount(deckEntity.getFavoriteCount())
                 .highlights(deckEntity.getHighlights().stream()
                         .sorted(Comparator.comparingInt(DeckHighlight::getHighlightOrder))
                         .map(a -> HighlightDto.builder().highlightOrder(a.getHighlightOrder()).cardId(a.getId().getCardId()).build())
@@ -333,6 +342,8 @@ public class DeckService {
         user.getFavorites().add(favoriteAssociation);
         userRepository.save(user);
 
+        deckRepository.addLikeOnDeck(deckId);
+
         return true;
     }
 
@@ -344,6 +355,9 @@ public class DeckService {
         user.getFavorites().remove(toBeRemoved);
         toBeRemoved.setId(null);
         userRepository.save(user);
+
+        deckRepository.removeLikeOnDeck(deckId);
+
         return true;
     }
 

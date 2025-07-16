@@ -89,8 +89,8 @@ public class DeckEntity {
     @Column
     private int costDust;
 
-//    @Column(columnDefinition = "integer default 0")
-//    private int favoriteCount;
+    @Column(columnDefinition = "integer default 0")
+    private int favoriteCount;
 
     @Column(columnDefinition = "LONGTEXT")
     private String description;

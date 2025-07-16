@@ -62,7 +62,7 @@ public class LoggedUserApiController {
         return deckService.removeFavoriteDeck(deckId);
     }
 
-    @PostMapping("/user/deck/{deckId}")
+    @PostMapping("/deck/{deckId}")
     public boolean deleteDeck(@PathVariable String deckId) { return deckService.deleteDeck(deckId);}
 
     @PostMapping("/deck")
