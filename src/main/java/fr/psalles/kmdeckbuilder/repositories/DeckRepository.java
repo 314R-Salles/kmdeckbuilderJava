@@ -45,5 +45,10 @@ public interface DeckRepository extends JpaRepository<DeckEntity, String>, JpaSp
     @Query(value = "delete from multiwork.km_deck kd WHERE kd.deckId = :deckId and kd.version = :version", nativeQuery = true)
     void deleteByDeckEntity(String deckId, int version);
 
+    @Transactional
+    @Modifying(clearAutomatically = true)
+    @Query(value = "delete from multiwork.km_deck kd WHERE kd.deckId = :deckId", nativeQuery = true)
+    void deleteByDeckEntity(String deckId);
+
 
 }

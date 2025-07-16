@@ -62,6 +62,9 @@ public class LoggedUserApiController {
         return deckService.removeFavoriteDeck(deckId);
     }
 
+    @PostMapping("/user/deck/{deckId}")
+    public boolean deleteDeck(@PathVariable String deckId) { return deckService.deleteDeck(deckId);}
+
     @PostMapping("/deck")
     public SavedDeckResponse saveDeck(@RequestBody DeckCreateForm form) {
         return deckService.saveDeck(form);

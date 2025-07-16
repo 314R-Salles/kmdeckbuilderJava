@@ -138,7 +138,7 @@ public class DeckSpecification {
         return builder.in(root.get(DeckEntity_.id)).value(subquery);
     }
 
-    public static Specification<DeckEntity> filterByTags(List<Integer> tagIds) {
+    public static Specification<DeckEntity> filterByTags(List<Integer> tagIds, boolean negative) {
         return (root, query, builder) -> {
             if (tagIds == null) {
                 return builder.and();
@@ -148,12 +148,15 @@ public class DeckSpecification {
                 for (Integer tagId : tagIds) {
                     predicates[i++] = builder.and(filterByTags(root, query, builder, tagId));
                 }
-                return builder.and(predicates);
+                if (negative)
+                    return builder.and(predicates).not();
+                else
+                    return builder.and(predicates);
             }
         };
     }
 
-    public static Specification<DeckEntity> filterByOwners(List<String> usernames) {
+    public static Specification<DeckEntity> filterByOwners(List<String> usernames, boolean negative) {
         return (root, query, builder) -> {
             if (usernames == null || usernames.isEmpty()) {
                 return builder.and();
@@ -162,7 +165,10 @@ public class DeckSpecification {
                 for (String user : usernames) {
                     inClause.value(user);
                 }
-                return builder.and(inClause);
+                if (negative)
+                    return builder.and(inClause).not();
+                else
+                    return builder.and(inClause);
             }
         };
     }

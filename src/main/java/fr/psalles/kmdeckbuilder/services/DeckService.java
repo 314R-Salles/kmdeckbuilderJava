@@ -59,12 +59,33 @@ public class DeckService {
     @Autowired
     private LastVersionRepository lastVersionRepository;
 
+    public void deleteDeckById(String id) {
+        favoriteRepository.deleteByDeckEntity(id);
+        associationRepository.deleteByDeckEntity(id);
+        highlightRepository.deleteByDeckEntity(id);
+        tagAssociationRepository.deleteByDeckEntity(id);
+        deckRepository.deleteByDeckEntity(id);
+    }
 
     public void deleteDeckById(String id, Integer version) {
         associationRepository.deleteByDeckEntity(id, version);
         highlightRepository.deleteByDeckEntity(id, version);
         tagAssociationRepository.deleteByDeckEntity(id, version);
         deckRepository.deleteByDeckEntity(id, version);
+    }
+
+    public boolean deleteDeck(String id) {
+        // Some control IN CASE SOMETHING GOES WRONG IN FRONT CHECK because of circonstances of the action.
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserEntity user = userRepository.findById(userId).get();
+        DeckEntity deckEntity = deckRepository.findLastVersionForDeckId(id);
+
+        if (user.getUserId().equals(deckEntity.getUserId().getUserId())) {
+            deleteDeckById(id);
+            return true;
+        }
+
+        return false;
     }
 
     public SavedDeckResponse saveDeck(DeckCreateForm deck) {
@@ -165,8 +186,10 @@ public class DeckService {
                         .and(filterLastVersion())
                         .and(filterFavoritesOnly(userId, authenticated && form.isFavoritesOnly()))
                         .and(filterByCards(form.getCards()))
-                        .and(filterByTags(form.getTags()))
-                        .and(filterByOwners(form.getUsers()))
+                        .and(filterByTags(form.getTags(), false))
+                        .and(filterByTags(form.getNegativeTags(), true))
+                        .and(filterByOwners(form.getUsers(), false))
+                        .and(filterByOwners(form.getNegativeUsers(), true))
                         .and(filterByDust(form.getDustCost(), form.isDustGeq()))
                         .and(filterByAp(form.getActionPointCost(), form.isActionCostGeq()))
                         .and(filterByNameLikeContent(form.getContent())

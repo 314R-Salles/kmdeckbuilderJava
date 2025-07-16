@@ -158,13 +158,14 @@ public class CardSpecification {
         };
     }
 
-    public static Specification<CardEntity> filterByFamily(Integer family) {
+    public static Specification<CardEntity> filterByFamily(String family) {
         return (root, query, builder) -> {
             if (family == null) {
                 return builder.and();
             } else {
-                return builder.or(builder.equal(root.get(CardEntity_.family1), family),
-                        builder.equal(root.get(CardEntity_.family2), family));
+                return builder.or(builder.like(builder.lower(root.get(CardEntity_.family1)), "%" + family.toLowerCase() + "%"),
+                        builder.like(builder.lower(root.get(CardEntity_.family2)), "%" + family.toLowerCase() + "%"));
+                // return builder.or(builder.equal(root.get(CardEntity_.family1), family), builder.equal(root.get(CardEntity_.family2), family));
             }
         };
     }

@@ -15,4 +15,8 @@ public interface TagAssociationRepository extends JpaRepository<TagAssociation, 
     @Query(value = "delete from multiwork.km_tag_association ta WHERE ta.deckId = :deckId and ta.version = :version", nativeQuery = true)
     void deleteByDeckEntity(String deckId, int version);
 
+    @Transactional
+    @Modifying(clearAutomatically = true)
+    @Query(value = "delete from multiwork.km_tag_association ta WHERE ta.deckId = :deckId", nativeQuery = true)
+    void deleteByDeckEntity(String deckId);
 }

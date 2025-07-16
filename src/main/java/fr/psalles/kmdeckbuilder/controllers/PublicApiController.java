@@ -120,7 +120,6 @@ public class PublicApiController {
         return deckService.loadDeckOwners();
     }
 
-
     @GetMapping("/cards/illustrations")
     public List<IllustrationNameEntity> loadAllIllustrations() {
         return cardIllustrationService.loadAll();

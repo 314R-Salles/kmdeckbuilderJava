@@ -17,7 +17,9 @@ public class DeckSearchForm {
     private List<God> gods;
     private List<Integer> cards;
     private List<Integer> tags;
+    private List<Integer> negativeTags;
     private List<String> users;
+    private List<String> negativeUsers;
     private Integer actionPointCost;
     private Integer dustCost;
     private boolean dustGeq;

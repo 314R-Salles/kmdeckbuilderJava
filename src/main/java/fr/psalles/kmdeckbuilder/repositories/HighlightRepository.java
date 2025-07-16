@@ -15,4 +15,9 @@ public interface HighlightRepository extends JpaRepository<DeckHighlight, Associ
     @Query(value = "delete from multiwork.km_deck_highlight dh WHERE dh.deckId = :deckId and dh.version = :version", nativeQuery = true)
     void deleteByDeckEntity(String deckId, int version);
 
+    @Transactional
+    @Modifying(clearAutomatically = true)
+    @Query(value = "delete from multiwork.km_deck_highlight dh WHERE dh.deckId = :deckId", nativeQuery = true)
+    void deleteByDeckEntity(String deckId);
+
 }

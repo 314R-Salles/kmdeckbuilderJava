@@ -33,9 +33,8 @@ public class CardService {
                         .and(filterByGod(cardFilter.getGods()))
                         .and(filterByRarity(cardFilter.getRarity()))
                         .and(filterByLanguage(cardFilter.getLanguage()))
-                        .and(filterByFamily(cardFilter.getFamily()))
                         .and(filterByNameLikeContent(cardFilter.getName())
-                                .or(filterByDescriptionLikeContent(cardFilter.getDescription())))
+                                .or(filterByDescriptionLikeContent(cardFilter.getDescription())).or(filterByFamily(cardFilter.getDescription())))
                 , PageRequest.of(cardFilter.getPageNumber(), cardFilter.getPageSize(), Sort.Direction.ASC, "costAP", "name", "infiniteLevel"));
         return page.map(entity -> CardDto.builder()
                 .id(entity.getCardIdentity().getId())
@@ -72,7 +71,4 @@ public class CardService {
                 .movementPoint(entity.getMovementPoint())
                 .build());
     }
-
-
-
 }
