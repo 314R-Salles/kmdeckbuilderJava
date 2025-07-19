@@ -95,6 +95,10 @@ public class DeckEntity {
     @Column(columnDefinition = "LONGTEXT")
     private String description;
 
+    @Column
+    private String videoLink;
+
+
     @Override
     public String toString() {
         return "DeckEntity{" +

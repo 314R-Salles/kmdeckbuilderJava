@@ -70,11 +70,6 @@ public class LoggedUserApiController {
         return deckService.saveDeck(form);
     }
 
-    @PostMapping("/decks")
-    public Page<DeckDto> getDecks(@RequestBody DeckSearchForm form) {
-        return deckService.findDecks(form, true);
-    }
-
     @PostMapping("/decks/recentFavorites/{language}")
     public Page<DeckDto> getFavoriteDecks(@PathVariable Language language) {
         return deckService.findFavoriteDecks(language);

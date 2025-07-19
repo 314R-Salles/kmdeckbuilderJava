@@ -107,7 +107,7 @@ public class PublicApiController {
 
     @PostMapping("/decks")
     public Page<DeckDto> getDecks(@RequestBody DeckSearchForm form) {
-        return deckService.findDecks(form, false);
+        return deckService.findDecks(form);
     }
 
     @GetMapping("/decks/{deckId}/language/{language}/version/{version}")

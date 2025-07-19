@@ -7,7 +7,6 @@ import fr.psalles.kmdeckbuilder.models.HighlightDto;
 import fr.psalles.kmdeckbuilder.models.SimpleTagDto;
 import fr.psalles.kmdeckbuilder.models.entities.*;
 import fr.psalles.kmdeckbuilder.models.entities.embedded.*;
-import fr.psalles.kmdeckbuilder.models.entities.projections.FavoriteCount;
 import fr.psalles.kmdeckbuilder.models.entities.projections.UserCount;
 import fr.psalles.kmdeckbuilder.models.enums.Language;
 import fr.psalles.kmdeckbuilder.models.requests.DeckCreateForm;
@@ -21,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -193,8 +193,10 @@ public class DeckService {
         return SavedDeckResponse.builder().deckId(identity.getDeckId()).version(identity.getVersion()).build();
     }
 
-    public Page<DeckDto> findDecks(DeckSearchForm form, boolean authenticated) {
+    public Page<DeckDto> findDecks(DeckSearchForm form) {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        boolean authenticated = SecurityContextHolder.getContext().getAuthentication().getAuthorities()
+                .stream().map(GrantedAuthority::getAuthority).noneMatch(a -> a.equals("ROLE_ANONYMOUS"));
         Page<DeckEntity> page = deckRepository.findAll(
                 filterByGod(form.getGods())
                         .and(filterLastVersion())
