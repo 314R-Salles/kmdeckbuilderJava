@@ -165,7 +165,6 @@ public class CardSpecification {
             } else {
                 return builder.or(builder.like(builder.lower(root.get(CardEntity_.family1)), "%" + family.toLowerCase() + "%"),
                         builder.like(builder.lower(root.get(CardEntity_.family2)), "%" + family.toLowerCase() + "%"));
-                // return builder.or(builder.equal(root.get(CardEntity_.family1), family), builder.equal(root.get(CardEntity_.family2), family));
             }
         };
     }

@@ -19,6 +19,7 @@ public class DeckDto {
     private String name;
     private String owner;
     private String description;
+    private String videoLink;
     private List<CardDto> cards;
     private God god;
     private LocalDateTime creationDate;

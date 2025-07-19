@@ -22,16 +22,13 @@ import java.util.List;
 @PreAuthorize("@principalPropertiesAccessor.isAdmin()")
 public class AdminApiController {
 
-    private final UserService userService;
     private final NewsService newsService;
     private final TagsService tagsService;
 
 
     @Autowired
-    public AdminApiController(UserService userService,
-                              NewsService newsService,
+    public AdminApiController(NewsService newsService,
                               TagsService tagsService) {
-        this.userService = userService;
         this.newsService = newsService;
         this.tagsService = tagsService;
     }

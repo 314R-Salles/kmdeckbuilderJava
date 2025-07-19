@@ -30,7 +30,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static fr.psalles.kmdeckbuilder.models.entities.specification.DeckSpecification.*;
-import static java.util.stream.Collectors.toList;
 
 
 @Slf4j
@@ -112,6 +111,7 @@ public class DeckService {
         entity.setCostAP(deck.getCards().stream().map(a -> a.getCostAP() * a.getCount()).reduce(0, Integer::sum));
         entity.setCostDust(deck.getCards().stream().map(a -> a.getRarity().getDust() * a.getCount()).reduce(0, Integer::sum));
         entity.setUserId(user);
+        entity.setVideoLink(deck.getVideoLink());
         entity.setDescription(deck.getDescription());
 
         List<CardAssociation> associations = deck.getCards().stream().map(card -> {
@@ -237,7 +237,7 @@ public class DeckService {
                     .highlights(entity.getHighlights().stream()
                             .sorted(Comparator.comparingInt(DeckHighlight::getHighlightOrder))
                             .map(a -> HighlightDto.builder().highlightOrder(a.getHighlightOrder()).cardId(a.getId().getCardId()).build())
-                            .collect(toList()))
+                            .toList())
                     .costDust(entity.getCostDust())
                     .build();
         });
@@ -274,7 +274,7 @@ public class DeckService {
                     .highlights(entity.getHighlights().stream()
                             .sorted(Comparator.comparingInt(DeckHighlight::getHighlightOrder))
                             .map(a -> HighlightDto.builder().highlightOrder(a.getHighlightOrder()).cardId(a.getId().getCardId()).build())
-                            .collect(toList()))
+                            .toList())
                     .costDust(entity.getCostDust())
                     .build();
         });
@@ -323,11 +323,12 @@ public class DeckService {
                 .costAP(deckEntity.getCostAP())
                 .version(deckEntity.getId().getVersion())
                 .versions(versions)
+                .videoLink(deckEntity.getVideoLink())
                 .favoriteCount(deckEntity.getFavoriteCount())
                 .highlights(deckEntity.getHighlights().stream()
                         .sorted(Comparator.comparingInt(DeckHighlight::getHighlightOrder))
                         .map(a -> HighlightDto.builder().highlightOrder(a.getHighlightOrder()).cardId(a.getId().getCardId()).build())
-                        .collect(toList()))
+                        .toList())
                 .costDust(deckEntity.getCostDust())
                 .cards(cardDtos).build();
     }

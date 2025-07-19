@@ -1,6 +1,7 @@
 package fr.psalles.kmdeckbuilder.clients;
 
 import fr.psalles.kmdeckbuilder.commons.client.BaseHttpClient;
+import fr.psalles.kmdeckbuilder.models.VideoCheck;
 import fr.psalles.kmdeckbuilder.models.extern.twitch.*;
 import fr.psalles.kmdeckbuilder.models.responses.AggregatedStream;
 import fr.psalles.kmdeckbuilder.models.responses.AggregatedVod;
@@ -54,7 +55,7 @@ public class TwitchClient {
         }
 
         String resultString = result.toString();
-        return resultString.length() > 0
+        return !resultString.isEmpty()
                 ? resultString.substring(0, resultString.length() - 1)
                 : resultString;
     }
@@ -63,6 +64,13 @@ public class TwitchClient {
         TwitchUserResponse response = client.makeCall(HttpMethod.GET, "https://api.twitch.tv/helix/users", TwitchUserResponse.class, null, getAuthHeaders(token));
         log.debug("Le token reçu correspond à : {} ", response.getData().getFirst().getLogin());
         return response.getData().getFirst();
+    }
+
+    // Valider qu'une vidéo est un highlight et donc un lien permanent
+    public VideoCheck checkVideo(String token, String id) {
+        String url = "https://api.twitch.tv/helix/videos?id=" + id; // League
+        TwitchVideoResponse video = client.makeCall(HttpMethod.GET, url, TwitchVideoResponse.class, null, getAuthHeaders(token));
+        return new VideoCheck("twitch", !video.getData().getFirst().getType().equals("highlight"), true, id);
     }
 
     @Cacheable("twitch_token")
@@ -74,8 +82,7 @@ public class TwitchClient {
                 getUrlEncodedHeaders()).getAccess_token();
     }
 
-
-    /// Gestion du cache
+    // Gestion du cache
 
     @Cacheable("current_streams")
     public List<AggregatedStream> getStreams(String token) {
@@ -86,11 +93,11 @@ public class TwitchClient {
 
         // Completer les données avec l'image de profil
         if (streams.getData().isEmpty()) return Collections.emptyList();
-        TwitchStreamerResponse streamers = getStreamers(token, streams.getData().stream().map(TwitchStreamResponse.Stream::getUsername).collect(Collectors.toList()));
+        TwitchStreamerResponse streamers = getStreamers(token, streams.getData().stream().map(TwitchStreamResponse.Stream::getUsername).toList());
         Map<String, TwitchStreamerResponse.Streamer> streamerMap = streamers.getData().stream()
                 .collect(Collectors.toMap(TwitchStreamerResponse.Streamer::getUsername, Function.identity(), (a, b) -> a));
 
-        return streams.getData().stream().map(stream -> new AggregatedStream(stream, streamerMap.get(stream.getUsername()))).collect(Collectors.toList());
+        return streams.getData().stream().map(stream -> new AggregatedStream(stream, streamerMap.get(stream.getUsername()))).toList();
     }
 
     @Cacheable("vods")
@@ -102,11 +109,11 @@ public class TwitchClient {
 
         // Completer les données avec l'image de profil
         if (vods.getData().isEmpty()) return Collections.emptyList();
-        TwitchStreamerResponse streamers = getStreamers(token, vods.getData().stream().map(TwitchVideoResponse.Video::getUsername).distinct().collect(Collectors.toList()));
+        TwitchStreamerResponse streamers = getStreamers(token, vods.getData().stream().map(TwitchVideoResponse.Video::getUsername).distinct().toList());
         Map<String, TwitchStreamerResponse.Streamer> streamerMap = streamers.getData().stream()
                 .collect(Collectors.toMap(TwitchStreamerResponse.Streamer::getUsername, Function.identity(), (a, b) -> a));
 
-        return vods.getData().stream().map(stream -> new AggregatedVod(stream, streamerMap.get(stream.getUsername()))).collect(Collectors.toList());
+        return vods.getData().stream().map(stream -> new AggregatedVod(stream, streamerMap.get(stream.getUsername()))).toList();
     }
 
     private TwitchStreamerResponse getStreamers(String token, List<String> usernames) {
@@ -117,16 +124,19 @@ public class TwitchClient {
 
     @CacheEvict("twitch_token")
     public void evictToken() {
+        // Vide car Cache Evict
     }
 
     // Besoin du allEntries, parce que je passe un param dans getStreams qui sert donc de "clé" pour le cache des streams  cache = (Map<token, streams)
     @CacheEvict(value = "current_streams", allEntries = true)
     public void evictStreams() {
+        // Vide car Cache Evict
     }
 
     // Besoin du allEntries, parce que je passe un param dans getStreams qui sert donc de "clé" pour le cache des streams  cache = (Map<token, streams)
     @CacheEvict(value = "vods", allEntries = true)
     public void evictVods() {
+        // Vide car Cache Evict
     }
 
 

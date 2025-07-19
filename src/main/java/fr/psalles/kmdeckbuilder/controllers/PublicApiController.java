@@ -60,6 +60,11 @@ public class PublicApiController {
         return twitchService.getVods();
     }
 
+    @GetMapping("/twitch/check/{videoId}")
+    public VideoCheck checkTwitchVideo(@PathVariable String videoId) {
+        return twitchService.checkVideo(videoId);
+    }
+
 
     @GetMapping("/user/{username}")
     public User getUser(@PathVariable String username) {

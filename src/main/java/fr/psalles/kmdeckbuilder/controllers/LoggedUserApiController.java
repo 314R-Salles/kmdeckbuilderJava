@@ -4,7 +4,6 @@ import fr.psalles.kmdeckbuilder.models.DeckDto;
 import fr.psalles.kmdeckbuilder.models.User;
 import fr.psalles.kmdeckbuilder.models.enums.Language;
 import fr.psalles.kmdeckbuilder.models.requests.DeckCreateForm;
-import fr.psalles.kmdeckbuilder.models.requests.DeckSearchForm;
 import fr.psalles.kmdeckbuilder.models.responses.SavedDeckResponse;
 import fr.psalles.kmdeckbuilder.services.DeckService;
 import fr.psalles.kmdeckbuilder.services.UserService;
@@ -20,7 +19,6 @@ public class LoggedUserApiController {
 
     private final UserService userService;
     private final DeckService deckService;
-
 
     @Autowired
     public LoggedUserApiController(UserService userService,

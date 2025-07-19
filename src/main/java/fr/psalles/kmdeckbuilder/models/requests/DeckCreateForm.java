@@ -16,6 +16,7 @@ public class DeckCreateForm {
     private List<Card> cards;
     private String name;
     private String description;
+    private String videoLink;
     private God god;
     private List<Integer> tags;
 
