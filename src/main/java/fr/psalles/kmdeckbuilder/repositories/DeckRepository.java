@@ -23,12 +23,6 @@ public interface DeckRepository extends JpaRepository<DeckEntity, String>, JpaSp
 
     DeckEntity findById(DeckIdentity identity);
 
-//    @Query(value = "select * from multiwork.km_deck kd  WHERE kd.deckId = :id and kd.version = " +
-//            "(SELECT MAX(version) FROM multiwork.km_last_version v where deckId = :id)",
-//            nativeQuery = true)
-//    DeckEntity findLastVersionForDeckId(String id);
-
-
     @Query(value = "select * from multiwork.km_deck kd  WHERE kd.deckId = :id and kd.version = " +
             "(SELECT MAX(version) FROM multiwork.km_deck where deckId = :id)",
             nativeQuery = true)

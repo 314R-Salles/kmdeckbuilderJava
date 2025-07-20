@@ -60,6 +60,11 @@ public class PublicApiController {
         return twitchService.getVods();
     }
 
+    @GetMapping("/twitch/check/{videoId}")
+    public VideoCheck checkTwitchVideo(@PathVariable String videoId) {
+        return twitchService.checkVideo(videoId);
+    }
+
 
     @GetMapping("/user/{username}")
     public User getUser(@PathVariable String username) {
@@ -107,7 +112,7 @@ public class PublicApiController {
 
     @PostMapping("/decks")
     public Page<DeckDto> getDecks(@RequestBody DeckSearchForm form) {
-        return deckService.findDecks(form, false);
+        return deckService.findDecks(form);
     }
 
     @GetMapping("/decks/{deckId}/language/{language}/version/{version}")

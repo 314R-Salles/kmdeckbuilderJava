@@ -2,6 +2,7 @@ package fr.psalles.kmdeckbuilder.services;
 
 import fr.psalles.kmdeckbuilder.clients.TwitchClient;
 import fr.psalles.kmdeckbuilder.commons.exceptions.UnauthorizedException;
+import fr.psalles.kmdeckbuilder.models.VideoCheck;
 import fr.psalles.kmdeckbuilder.models.responses.AggregatedStream;
 import fr.psalles.kmdeckbuilder.models.responses.AggregatedVod;
 import lombok.extern.slf4j.Slf4j;
@@ -49,6 +50,19 @@ public class TwitchService {
             return twitchClient.getVods(token);
         }
     }
+
+    public VideoCheck checkVideo(String id) {
+        String token = twitchClient.getBearerToken();
+        try {
+            return twitchClient.checkVideo(token, id);
+        } catch (UnauthorizedException e) {
+            // on suppose que c'est le token qui a expiré
+            twitchClient.evictToken();
+            twitchClient.getBearerToken();
+            return twitchClient.checkVideo(token, id);
+        }
+    }
+
 
     @Scheduled(fixedRate = 5 * 60 * 1000)
     public void evictStreams() {
