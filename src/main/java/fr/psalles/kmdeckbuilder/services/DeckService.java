@@ -225,6 +225,7 @@ public class DeckService {
                     .deckId(entity.getId().getDeckId())
                     .name(entity.getName())
                     .owner(entity.getUserId().getUsername())
+                    .owned(entity.getUserId().getUserId().equals(userId))
                     .god(entity.getGod())
                     .creationDate(entity.getCreationDate())
                     .costAP(entity.getCostAP())
@@ -262,6 +263,7 @@ public class DeckService {
                     .deckId(entity.getId().getDeckId())
                     .name(entity.getName())
                     .owner(entity.getUserId().getUsername())
+                    .owned(entity.getUserId().getUserId().equals(userId))
                     .god(entity.getGod())
                     .tags(tags)
                     .creationDate(entity.getCreationDate())
@@ -278,7 +280,7 @@ public class DeckService {
         });
     }
 
-    public DeckDto getDeck(String id, Integer version, Language language) {
+    public DeckDto getDeck(String id, Integer version, Language language, boolean authenticated) {
         DeckEntity deckEntity = deckRepository.findById(new DeckIdentity(id, version));
         List<Integer> versions = deckRepository.findVersionNumberForDeckId(id);
 
@@ -309,10 +311,19 @@ public class DeckService {
         List<Integer> tagIds = deckEntity.getTags().stream().map(a -> a.getId().getTagId()).toList();
         List<SimpleTagDto> tags = tagsService.getTagsByLanguage(language).stream().filter(tag -> tagIds.contains(tag.getId())).toList();
 
+        List<String> userFavs = new ArrayList<>();
+
+        if (authenticated) {
+            String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+            UserEntity user = userRepository.findById(userId).get(); // on est obligé d'avoir une valeur ici
+            userFavs.addAll(user.getFavorites().stream().map(x -> x.getId().getDeckId()).toList());
+        }
+
         return DeckDto.builder()
                 .deckId(deckEntity.getId().getDeckId())
                 .name(deckEntity.getName())
                 .owner(deckEntity.getUserId().getUsername())
+                .owned(authenticated && deckEntity.getUserId().getUserId().equals(SecurityContextHolder.getContext().getAuthentication().getName()))
                 .cards(cardDtos)
                 .tags(tags)
                 .god(deckEntity.getGod())
@@ -320,6 +331,7 @@ public class DeckService {
                 .creationDate(deckEntity.getCreationDate())
                 .costAP(deckEntity.getCostAP())
                 .version(deckEntity.getId().getVersion())
+                .liked(userFavs.contains(deckEntity.getId().getDeckId()))
                 .versions(versions)
                 .favoriteCount(deckEntity.getFavoriteCount())
                 .highlights(deckEntity.getHighlights().stream()
@@ -336,15 +348,22 @@ public class DeckService {
 
     public boolean addFavoriteDeck(String deckId) {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-        UserEntity user = userRepository.findByUserId(userId);
-        FavoriteAssociation favoriteAssociation =
-                new FavoriteAssociation(new FavoriteAssociationIdentity(deckId, userId), LocalDateTime.now());
-        user.getFavorites().add(favoriteAssociation);
-        userRepository.save(user);
+        DeckEntity deck = deckRepository.findLastVersionForDeckId(deckId);
 
-        deckRepository.addLikeOnDeck(deckId);
+        if (!deck.getUserId().getUserId().equals(userId)) {
+            UserEntity user = userRepository.findByUserId(userId);
 
-        return true;
+            FavoriteAssociation favoriteAssociation =
+                    new FavoriteAssociation(new FavoriteAssociationIdentity(deckId, userId), LocalDateTime.now());
+            user.getFavorites().add(favoriteAssociation);
+            userRepository.save(user);
+
+            deckRepository.addLikeOnDeck(deckId);
+
+            return true;
+        }
+
+        return false;
     }
 
     public boolean removeFavoriteDeck(String deckId) {

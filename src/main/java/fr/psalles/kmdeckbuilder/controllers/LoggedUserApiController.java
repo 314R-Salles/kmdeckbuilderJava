@@ -80,5 +80,9 @@ public class LoggedUserApiController {
         return deckService.findFavoriteDecks(language);
     }
 
+    @GetMapping("/decks/{deckId}/language/{language}/version/{version}")
+    public DeckDto getDeck(@PathVariable String deckId, @PathVariable Language language, @PathVariable Integer version) {
+        return deckService.getDeck(deckId, version, language, true);
+    }
 
 }

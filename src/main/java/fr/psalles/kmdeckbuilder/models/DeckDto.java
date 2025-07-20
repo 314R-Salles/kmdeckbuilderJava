@@ -18,6 +18,7 @@ public class DeckDto {
     private String deckId;
     private String name;
     private String owner;
+    private boolean owned;
     private String description;
     private List<CardDto> cards;
     private God god;
