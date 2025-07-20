@@ -1,6 +1,7 @@
 package fr.psalles.kmdeckbuilder.services;
 
 import fr.psalles.kmdeckbuilder.commons.exceptions.ForbiddenException;
+import fr.psalles.kmdeckbuilder.commons.exceptions.ResourceNotFoundException;
 import fr.psalles.kmdeckbuilder.models.CardDto;
 import fr.psalles.kmdeckbuilder.models.DeckDto;
 import fr.psalles.kmdeckbuilder.models.HighlightDto;
@@ -97,7 +98,9 @@ public class DeckService {
         if (userId.equals(deckEntity.getUserId().getUserId())) {
             deleteDeckById(id);
             return true;
-        } else throw new ForbiddenException("Le deck ne vous appartient pas");
+        } else {
+            throw new ForbiddenException("Le deck ne vous appartient pas");
+        }
     }
 
     public SavedDeckResponse saveDeck(DeckCreateForm deck) {
@@ -282,8 +285,16 @@ public class DeckService {
         });
     }
 
-    public DeckDto getDeck(String id, Integer version, Language language, boolean authenticated) {
+    public DeckDto getDeck(String id, Integer version, Language language) {
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        boolean authenticated = SecurityContextHolder.getContext().getAuthentication().getAuthorities()
+                .stream().map(GrantedAuthority::getAuthority).noneMatch(a -> a.equals("ROLE_ANONYMOUS"));
         DeckEntity deckEntity = deckRepository.findById(new DeckIdentity(id, version));
+        if (deckEntity == null) {
+            log.error("{} essaie d'ouvrir un deck inexistant : {}/{}", userId, id, version);
+            throw new ResourceNotFoundException("Ce deck n'existe pas");
+        }
+
         List<Integer> versions = deckRepository.findVersionNumberForDeckId(id);
 
         Map<Integer, CardAssociation> cardMap = deckEntity.getCards().stream()
@@ -316,7 +327,6 @@ public class DeckService {
         List<String> userFavs = new ArrayList<>();
 
         if (authenticated) {
-            String userId = SecurityContextHolder.getContext().getAuthentication().getName();
             UserEntity user = userRepository.findById(userId).get(); // on est obligé d'avoir une valeur ici
             userFavs.addAll(user.getFavorites().stream().map(x -> x.getId().getDeckId()).toList());
         }
@@ -325,7 +335,7 @@ public class DeckService {
                 .deckId(deckEntity.getId().getDeckId())
                 .name(deckEntity.getName())
                 .owner(deckEntity.getUserId().getUsername())
-                .owned(authenticated && deckEntity.getUserId().getUserId().equals(SecurityContextHolder.getContext().getAuthentication().getName()))
+                .owned(authenticated && deckEntity.getUserId().getUserId().equals(userId))
                 .cards(cardDtos)
                 .tags(tags)
                 .god(deckEntity.getGod())
@@ -364,9 +374,9 @@ public class DeckService {
             deckRepository.addLikeOnDeck(deckId);
 
             return true;
+        } else {
+            throw new ForbiddenException("Le deck ne vous appartient pas");
         }
-
-        return false;
     }
 
     public boolean removeFavoriteDeck(String deckId) {
