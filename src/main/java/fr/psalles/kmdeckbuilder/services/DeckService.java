@@ -8,6 +8,7 @@ import fr.psalles.kmdeckbuilder.models.HighlightDto;
 import fr.psalles.kmdeckbuilder.models.SimpleTagDto;
 import fr.psalles.kmdeckbuilder.models.entities.*;
 import fr.psalles.kmdeckbuilder.models.entities.embedded.*;
+import fr.psalles.kmdeckbuilder.models.entities.projections.DeckView;
 import fr.psalles.kmdeckbuilder.models.entities.projections.UserCount;
 import fr.psalles.kmdeckbuilder.models.enums.Language;
 import fr.psalles.kmdeckbuilder.models.requests.DeckCreateForm;
@@ -200,6 +201,9 @@ public class DeckService {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
         boolean authenticated = SecurityContextHolder.getContext().getAuthentication().getAuthorities()
                 .stream().map(GrantedAuthority::getAuthority).noneMatch(a -> a.equals("ROLE_ANONYMOUS"));
+
+        // Je pense que des utilisateurs ont des vieilles pages en cache donc avec ce champ à null
+        String searchByWithDefault = form.getSearchBy() == null ? "RECENT" : form.getSearchBy().getFieldName();
         Page<DeckEntity> page = deckRepository.findAll(
                 filterByGod(form.getGods())
                         .and(filterLastVersion())
@@ -213,7 +217,7 @@ public class DeckService {
                         .and(filterByAp(form.getActionPointCost(), form.isActionCostGeq()))
                         .and(filterByNameLikeContent(form.getContent())
                         )
-                , PageRequest.of(form.getPage(), form.getPageSize(), Sort.Direction.DESC, form.getSearchBy().getFieldName()));
+                , PageRequest.of(form.getPage(), form.getPageSize(), Sort.Direction.DESC, searchByWithDefault));
 
         List<String> userFavs = new ArrayList<>();
         if (authenticated) {
@@ -355,6 +359,11 @@ public class DeckService {
                 .cards(cardDtos).build();
     }
 
+    public DeckView getDeckForCrawlers(String id, int version) {
+        return deckRepository.getDeckView(id, version);
+    }
+
+    // mettre un cache? qui est wipe à chaque création/suppression de deck?
     public List<UserCount> loadDeckOwners() {
         return deckRepository.countOwners();
     }

@@ -2,6 +2,7 @@ package fr.psalles.kmdeckbuilder.repositories;
 
 import fr.psalles.kmdeckbuilder.models.entities.DeckEntity;
 import fr.psalles.kmdeckbuilder.models.entities.embedded.DeckIdentity;
+import fr.psalles.kmdeckbuilder.models.entities.projections.DeckView;
 import fr.psalles.kmdeckbuilder.models.entities.projections.UserCount;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,12 +15,19 @@ import java.util.List;
 public interface DeckRepository extends JpaRepository<DeckEntity, String>, JpaSpecificationExecutor<DeckEntity> {
 
     @Query(value =
-            "select ku.username, T1.count from (select d.userId as userId,  count(*) as count\n" +
-                    "               from multiwork.km_deck d\n" +
-                    "                        INNER JOIN multiwork.km_last_version v on (d.deckId = v.deckId and d.version = v.version)\n" +
-                    "               group by d.userId) as T1 LEFT JOIN  multiwork.km_user ku on T1.userId = ku.userId ",
+            """
+                    select ku.username, T1.count from (select d.userId as userId,  count(*) as count from multiwork.km_deck d
+                    INNER JOIN multiwork.km_last_version v on (d.deckId = v.deckId and d.version = v.version)
+                                          group by d.userId) as T1 LEFT JOIN  multiwork.km_user ku on T1.userId = ku.userId""",
             nativeQuery = true)
     List<UserCount> countOwners();
+
+
+    @Query(value =
+            """
+                    select d.name, u.username from multiwork.km_deck d LEFT JOIN multiwork.km_user u on d.userId = u.userId
+                     where d.deckId = :id and d.version = :version""", nativeQuery = true)
+    DeckView getDeckView(String id, int version);
 
     DeckEntity findById(DeckIdentity identity);
 
@@ -48,7 +56,6 @@ public interface DeckRepository extends JpaRepository<DeckEntity, String>, JpaSp
             " JOIN ( SELECT deckId, COUNT(*) AS cnt FROM km_favorite_association GROUP BY deckId ) AS favCounts ON kd.deckId = favCounts.deckId " +
             " SET kd.favoriteCount = favCounts.cnt;", nativeQuery = true)
     void initLikesOnDecks();
-
 
 
     @Query(value = "select version from multiwork.km_deck kd  WHERE kd.deckId = :id",

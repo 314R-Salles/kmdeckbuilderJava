@@ -116,6 +116,7 @@ public class TwitchClient {
         return vods.getData().stream().map(stream -> new AggregatedVod(stream, streamerMap.get(stream.getUsername()))).toList();
     }
 
+    // TODO : Les streamers sont relativement constants? possible de mettre en cache / ajouter au cache si nouvel user, et refresh 1 fois par jour uniquement (juste pour avoir moins de logs)
     private TwitchStreamerResponse getStreamers(String token, List<String> usernames) {
         log.debug("Api call : streamers");
         String url = "https://api.twitch.tv/helix/users?" + getUsernameConcatenation(usernames);

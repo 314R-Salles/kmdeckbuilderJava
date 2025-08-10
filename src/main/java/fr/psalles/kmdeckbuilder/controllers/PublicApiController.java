@@ -2,6 +2,7 @@ package fr.psalles.kmdeckbuilder.controllers;
 
 import fr.psalles.kmdeckbuilder.models.*;
 import fr.psalles.kmdeckbuilder.models.entities.IllustrationNameEntity;
+import fr.psalles.kmdeckbuilder.models.entities.projections.DeckView;
 import fr.psalles.kmdeckbuilder.models.entities.projections.UserCount;
 import fr.psalles.kmdeckbuilder.models.enums.Language;
 import fr.psalles.kmdeckbuilder.models.requests.CardSearchForm;
@@ -118,6 +119,11 @@ public class PublicApiController {
     @GetMapping("/decks/{deckId}/language/{language}/version/{version}")
     public DeckDto getDeck(@PathVariable String deckId, @PathVariable Language language, @PathVariable Integer version) {
         return deckService.getDeck(deckId, version, language);
+    }
+
+    @GetMapping("/seo/decks/{deckId}/version/{version}")
+    public DeckView getDeckForCrawlers(@PathVariable String deckId, @PathVariable Integer version) {
+        return deckService.getDeckForCrawlers(deckId, version);
     }
 
     @GetMapping("/decks/owners")
