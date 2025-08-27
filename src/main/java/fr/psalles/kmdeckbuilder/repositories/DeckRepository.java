@@ -3,6 +3,7 @@ package fr.psalles.kmdeckbuilder.repositories;
 import fr.psalles.kmdeckbuilder.models.entities.DeckEntity;
 import fr.psalles.kmdeckbuilder.models.entities.embedded.DeckIdentity;
 import fr.psalles.kmdeckbuilder.models.entities.projections.UserCount;
+import fr.psalles.kmdeckbuilder.models.entities.projections.VersionView;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -51,9 +52,9 @@ public interface DeckRepository extends JpaRepository<DeckEntity, String>, JpaSp
 
 
 
-    @Query(value = "select version from multiwork.km_deck kd  WHERE kd.deckId = :id",
+    @Query(value = "select CONCAT(version, '.', minorVersion) from multiwork.km_deck kd  WHERE kd.deckId = :id",
             nativeQuery = true)
-    List<Integer> findVersionNumberForDeckId(String id);
+    List<String> findVersionNumbersForDeckId(String id);
 
 
     @Transactional

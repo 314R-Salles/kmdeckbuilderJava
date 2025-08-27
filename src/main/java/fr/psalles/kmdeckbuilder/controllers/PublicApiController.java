@@ -6,9 +6,7 @@ import fr.psalles.kmdeckbuilder.models.entities.projections.UserCount;
 import fr.psalles.kmdeckbuilder.models.enums.Language;
 import fr.psalles.kmdeckbuilder.models.requests.CardSearchForm;
 import fr.psalles.kmdeckbuilder.models.requests.DeckSearchForm;
-import fr.psalles.kmdeckbuilder.models.responses.AggregatedStream;
-import fr.psalles.kmdeckbuilder.models.responses.AggregatedVod;
-import fr.psalles.kmdeckbuilder.models.responses.YoutubeSearchResultDto;
+import fr.psalles.kmdeckbuilder.models.responses.Media;
 import fr.psalles.kmdeckbuilder.services.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,8 +20,7 @@ import java.util.List;
 @RequestMapping("/api/public")
 public class PublicApiController {
 
-    private final TwitchService twitchService;
-    private final YoutubeService youtubeService;
+    private final MediaService mediaService;
     private final NewsService newsService;
     private final UserService userService;
     private final CardService cardService;
@@ -32,17 +29,15 @@ public class PublicApiController {
     private final CardIllustrationService cardIllustrationService;
 
     @Autowired
-    public PublicApiController(TwitchService twitchService,
-                               DeckService deckService,
-                               YoutubeService youtubeService,
+    public PublicApiController(DeckService deckService,
+                               MediaService mediaService,
                                NewsService newsService, UserService userService,
                                CardService cardService,
                                TagsService tagsService,
                                CardIllustrationService cardIllustrationService
     ) {
-        this.twitchService = twitchService;
         this.deckService = deckService;
-        this.youtubeService = youtubeService;
+        this.mediaService = mediaService;
         this.newsService = newsService;
         this.tagsService = tagsService;
         this.userService = userService;
@@ -51,18 +46,18 @@ public class PublicApiController {
     }
 
     @GetMapping("/twitch/streams")
-    public List<AggregatedStream> getStreams() {
-        return twitchService.getStreams();
+    public List<Media> getStreams() {
+        return mediaService.getStreams();
     }
 
     @GetMapping("/twitch/vods")
-    public List<AggregatedVod> getVods() {
-        return twitchService.getVods();
+    public List<Media> getVods() {
+        return mediaService.getVods();
     }
 
     @GetMapping("/twitch/check/{videoId}")
     public VideoCheck checkTwitchVideo(@PathVariable String videoId) {
-        return twitchService.checkVideo(videoId);
+        return mediaService.checkVideo(videoId);
     }
 
 
@@ -72,8 +67,13 @@ public class PublicApiController {
     }
 
     @GetMapping("/youtube/videos")
-    public List<YoutubeSearchResultDto> getLastVideos() {
-        return youtubeService.getVideos();
+    public List<Media> getLastVideos() {
+        return mediaService.getVideos();
+    }
+
+    @GetMapping("/media/content")
+    public List<Media> getLastVodsAndVideos() {
+        return mediaService.getVodsAndVideos();
     }
 
     @GetMapping("/news/latest/{number}")
@@ -115,9 +115,9 @@ public class PublicApiController {
         return deckService.findDecks(form);
     }
 
-    @GetMapping("/decks/{deckId}/language/{language}/version/{version}")
-    public DeckDto getDeck(@PathVariable String deckId, @PathVariable Language language, @PathVariable Integer version) {
-        return deckService.getDeck(deckId, version, language);
+    @GetMapping("/decks/{deckId}/language/{language}/version/{version}/minorVersion/{minorVersion}")
+    public DeckDto getDeck(@PathVariable String deckId, @PathVariable Language language, @PathVariable Integer version, @PathVariable Integer minorVersion) {
+        return deckService.getDeck(deckId, version, minorVersion, language);
     }
 
     @GetMapping("/decks/owners")

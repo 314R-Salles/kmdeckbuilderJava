@@ -45,7 +45,8 @@ public class DeckEntity {
     @JsonIgnore
     @JoinColumns({
             @JoinColumn(name = "deckId", referencedColumnName = "deckId"),
-            @JoinColumn(name = "version", referencedColumnName = "version")
+            @JoinColumn(name = "version", referencedColumnName = "version"),
+            @JoinColumn(name = "minorVersion", referencedColumnName = "minorVersion")
     })
     private List<CardAssociation> cards = new ArrayList<>();
 
@@ -59,7 +60,8 @@ public class DeckEntity {
     @JsonIgnore
     @JoinColumns({
             @JoinColumn(name = "deckId", referencedColumnName = "deckId"),
-            @JoinColumn(name = "version", referencedColumnName = "version")
+            @JoinColumn(name = "version", referencedColumnName = "version"),
+            @JoinColumn(name = "minorVersion", referencedColumnName = "minorVersion")
     })
     private List<TagAssociation> tags = new ArrayList<>();
 
@@ -72,7 +74,8 @@ public class DeckEntity {
     )
     @JoinColumns({
             @JoinColumn(name = "deckId", referencedColumnName = "deckId"),
-            @JoinColumn(name = "version", referencedColumnName = "version")
+            @JoinColumn(name = "version", referencedColumnName = "version"),
+            @JoinColumn(name = "minorVersion", referencedColumnName = "minorVersion")
     })
     @JsonIgnore
     private List<DeckHighlight> highlights = new ArrayList<>();

@@ -8,5 +8,5 @@ import lombok.Data;
 public class SavedDeckResponse {
     private String deckId;
     private int version;
-
+    private int minorVersion;
 }

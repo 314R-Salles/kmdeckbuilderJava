@@ -29,7 +29,8 @@ public class DeckDto {
     private List<HighlightDto> highlights;
 
     private int version;
-    private List<Integer> versions;
+    private int minorVersion;
+    private List<String> versions;
     private List<SimpleTagDto> tags;
 
     private boolean liked;

@@ -18,4 +18,6 @@ public class DeckIdentity {
     @Column
     private int version;
 
+    @Column
+    private int minorVersion;
 }

@@ -9,6 +9,7 @@ import fr.psalles.kmdeckbuilder.models.SimpleTagDto;
 import fr.psalles.kmdeckbuilder.models.entities.*;
 import fr.psalles.kmdeckbuilder.models.entities.embedded.*;
 import fr.psalles.kmdeckbuilder.models.entities.projections.UserCount;
+import fr.psalles.kmdeckbuilder.models.entities.projections.VersionView;
 import fr.psalles.kmdeckbuilder.models.enums.Language;
 import fr.psalles.kmdeckbuilder.models.requests.DeckCreateForm;
 import fr.psalles.kmdeckbuilder.models.requests.DeckSearchForm;
@@ -67,6 +68,7 @@ public class DeckService {
     @PostConstruct
     public void init() {
         deckRepository.initLikesOnDecks();
+        favoriteRepository.cleanFavoriteOwner();
     }
 
     // une fois par semaine, rafraichir le compteur de likes en base
@@ -145,14 +147,16 @@ public class DeckService {
             if (!isDuplicate) {
                 lastVersionRepository.delete(new LastVersionEntity(deckIdentity));
                 deckIdentity.setVersion(deckIdentity.getVersion() + 1);
+                deckIdentity.setMinorVersion(0);
                 entity.setId(deckIdentity);
                 lastVersionRepository.save(new LastVersionEntity(deckIdentity));
             } else {
                 deleteDeckById(deckIdentity.getDeckId(), deckIdentity.getVersion());
+                deckIdentity.setMinorVersion(deckIdentity.getMinorVersion() + 1);
                 entity.setId(deckIdentity);
             }
         } else {
-            DeckIdentity deckIdentity = new DeckIdentity(UUID.randomUUID().toString(), 1);
+            DeckIdentity deckIdentity = new DeckIdentity(UUID.randomUUID().toString(), 1, 0);
             entity.setId(deckIdentity);
             lastVersionRepository.save(new LastVersionEntity(deckIdentity));
             entity.setCreationDate(LocalDateTime.now());
@@ -193,7 +197,7 @@ public class DeckService {
         } else {
             log.info("{} ajoute le deck {}", user.getUsername(), deck.getName());
         }
-        return SavedDeckResponse.builder().deckId(identity.getDeckId()).version(identity.getVersion()).build();
+        return SavedDeckResponse.builder().deckId(identity.getDeckId()).version(identity.getVersion()).minorVersion(identity.getMinorVersion()).build();
     }
 
     public Page<DeckDto> findDecks(DeckSearchForm form) {
@@ -236,6 +240,7 @@ public class DeckService {
                     .costAP(entity.getCostAP())
                     .tags(tags)
                     .version(entity.getId().getVersion())
+                    .minorVersion(entity.getId().getMinorVersion())
                     .favoriteCount(entity.getFavoriteCount())
                     .liked(userFavs.contains(entity.getId().getDeckId()))
                     .highlights(entity.getHighlights().stream()
@@ -274,6 +279,7 @@ public class DeckService {
                     .creationDate(entity.getCreationDate())
                     .costAP(entity.getCostAP())
                     .version(entity.getId().getVersion())
+                    .minorVersion(entity.getId().getMinorVersion())
                     .favoriteCount(entity.getFavoriteCount())
                     .liked(true)
                     .highlights(entity.getHighlights().stream()
@@ -285,18 +291,17 @@ public class DeckService {
         });
     }
 
-    public DeckDto getDeck(String id, Integer version, Language language) {
+    public DeckDto getDeck(String id, Integer version, Integer minorVersion, Language language) {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
         boolean authenticated = SecurityContextHolder.getContext().getAuthentication().getAuthorities()
                 .stream().map(GrantedAuthority::getAuthority).noneMatch(a -> a.equals("ROLE_ANONYMOUS"));
-        DeckEntity deckEntity = deckRepository.findById(new DeckIdentity(id, version));
+        DeckEntity deckEntity = deckRepository.findById(new DeckIdentity(id, version, minorVersion));
         if (deckEntity == null) {
             log.error("{} essaie d'ouvrir un deck inexistant : {}/{}", userId, id, version);
             throw new ResourceNotFoundException("Ce deck n'existe pas");
         }
 
-        List<Integer> versions = deckRepository.findVersionNumberForDeckId(id);
-
+        List<String> versions = deckRepository.findVersionNumbersForDeckId(id);
         Map<Integer, CardAssociation> cardMap = deckEntity.getCards().stream()
                 .collect(Collectors.toMap(x -> x.getId().getCardId(), Function.identity(), (a, b) -> a));
 
@@ -343,6 +348,7 @@ public class DeckService {
                 .creationDate(deckEntity.getCreationDate())
                 .costAP(deckEntity.getCostAP())
                 .version(deckEntity.getId().getVersion())
+                .minorVersion(deckEntity.getId().getMinorVersion())
                 .liked(userFavs.contains(deckEntity.getId().getDeckId()))
                 .versions(versions)
                 .videoLink(deckEntity.getVideoLink())

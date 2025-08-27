@@ -21,4 +21,9 @@ public interface FavoriteRepository extends JpaRepository<FavoriteAssociation, S
     @Modifying(clearAutomatically = true)
     @Query(value = "delete from multiwork.km_favorite_association asso WHERE asso.deckId = :deckId", nativeQuery = true)
     void deleteByDeckEntity(String deckId);
+
+    @Transactional
+    @Modifying
+    @Query(value = "delete from multiwork.km_favorite_association asso LEFT JOIN multiwork.km_deck as deck ON deck.deckId = asso.deckID WHERE deck.userId = asso.userId AND deck.deckId = asso.deckId", nativeQuery = true)
+    void cleanFavoriteOwner();
 }

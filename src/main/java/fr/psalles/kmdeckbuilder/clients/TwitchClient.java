@@ -3,8 +3,7 @@ package fr.psalles.kmdeckbuilder.clients;
 import fr.psalles.kmdeckbuilder.commons.client.BaseHttpClient;
 import fr.psalles.kmdeckbuilder.models.VideoCheck;
 import fr.psalles.kmdeckbuilder.models.extern.twitch.*;
-import fr.psalles.kmdeckbuilder.models.responses.AggregatedStream;
-import fr.psalles.kmdeckbuilder.models.responses.AggregatedVod;
+import fr.psalles.kmdeckbuilder.models.responses.Media;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -85,7 +84,7 @@ public class TwitchClient {
     // Gestion du cache
 
     @Cacheable("current_streams")
-    public List<AggregatedStream> getStreams(String token) {
+    public List<Media> getStreams(String token) {
         log.debug("Api call : Streams Krosmaga");
 
         String url = "https://api.twitch.tv/helix/streams?game_id=493754&first=12"; // League
@@ -97,11 +96,11 @@ public class TwitchClient {
         Map<String, TwitchStreamerResponse.Streamer> streamerMap = streamers.getData().stream()
                 .collect(Collectors.toMap(TwitchStreamerResponse.Streamer::getUsername, Function.identity(), (a, b) -> a));
 
-        return streams.getData().stream().map(stream -> new AggregatedStream(stream, streamerMap.get(stream.getUsername()))).toList();
+        return streams.getData().stream().map(stream -> new Media(stream, streamerMap.get(stream.getUsername()))).toList();
     }
 
     @Cacheable("vods")
-    public List<AggregatedVod> getVods(String token) {
+    public List<Media> getVods(String token) {
         log.debug("Api call : Vods Krosmaga");
 
         String url = "https://api.twitch.tv/helix/videos?game_id=493754&first=16&sort=time&type=archive"; // League
@@ -113,7 +112,7 @@ public class TwitchClient {
         Map<String, TwitchStreamerResponse.Streamer> streamerMap = streamers.getData().stream()
                 .collect(Collectors.toMap(TwitchStreamerResponse.Streamer::getUsername, Function.identity(), (a, b) -> a));
 
-        return vods.getData().stream().map(stream -> new AggregatedVod(stream, streamerMap.get(stream.getUsername()))).toList();
+        return vods.getData().stream().map(stream -> new Media(stream, streamerMap.get(stream.getUsername()))).toList();
     }
 
     private TwitchStreamerResponse getStreamers(String token, List<String> usernames) {

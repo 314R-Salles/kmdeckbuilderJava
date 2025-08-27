@@ -20,7 +20,7 @@ public class UserService {
     UserRepository userRepository;
 
     @Autowired
-    TwitchService twitchService;
+    MediaService mediaService;
 
     public User checkUser() {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -70,7 +70,7 @@ public class UserService {
     }
 
     public User linkTwitch(String token) {
-        String username = this.twitchService.getUsernameFromToken(token);
+        String username = this.mediaService.getUsernameFromToken(token);
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
         UserEntity user = userRepository.findByUserId(userId);
         log.info("{} associe son compte twitch {}", user.getUsername(), username);

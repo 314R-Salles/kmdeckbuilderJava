@@ -2,7 +2,7 @@ package fr.psalles.kmdeckbuilder.clients;
 
 import fr.psalles.kmdeckbuilder.commons.client.BaseHttpClient;
 import fr.psalles.kmdeckbuilder.models.extern.youtube.YoutubeVideoResponse;
-import fr.psalles.kmdeckbuilder.models.responses.YoutubeSearchResultDto;
+import fr.psalles.kmdeckbuilder.models.responses.Media;
 import fr.psalles.kmdeckbuilder.models.extern.youtube.YoutubeChannelResponse;
 import fr.psalles.kmdeckbuilder.models.extern.youtube.YoutubeSearchResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +29,7 @@ public class YoutubeClient {
     private String key;
 
     @Cacheable("youtube_videos")
-    public List<YoutubeSearchResultDto> getLastVideos() {
+    public List<Media> getLastVideos() {
         log.debug("Api call : Youtube Search");
         String url = "https://youtube.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=15&order=date&q=krosmaga&key=" + key;
 
@@ -46,7 +46,7 @@ public class YoutubeClient {
                 .collect(Collectors.toMap(YoutubeVideoResponse.Video::getId, Function.identity(), (a, b) -> a));
 
         return searchResults.stream().map(searchResult ->
-                new YoutubeSearchResultDto(searchResult,
+                new Media(searchResult,
                         channelsMap.get(searchResult.getSnippet().getChannelId()),
                         videossMap.get(searchResult.getId().getVideoId()))
                         )

@@ -2,7 +2,11 @@ package fr.psalles.kmdeckbuilder.models.entities.specification;
 
 
 import fr.psalles.kmdeckbuilder.models.entities.*;
-import fr.psalles.kmdeckbuilder.models.entities.embedded.*;
+import fr.psalles.kmdeckbuilder.models.entities.embedded.AssociationIdentity_;
+import fr.psalles.kmdeckbuilder.models.entities.embedded.DeckIdentity;
+import fr.psalles.kmdeckbuilder.models.entities.embedded.FavoriteAssociationIdentity_;
+import fr.psalles.kmdeckbuilder.models.entities.embedded.TagAssociationIdentity_;
+import fr.psalles.kmdeckbuilder.models.entities.embedded.DeckIdentity_;
 import fr.psalles.kmdeckbuilder.models.enums.God;
 import jakarta.persistence.criteria.*;
 import org.springframework.data.jpa.domain.Specification;
@@ -149,7 +153,7 @@ public class DeckSpecification {
                     predicates[i++] = builder.and(filterByTags(root, query, builder, tagId));
                 }
                 if (negative)
-                    return builder.and(predicates).not();
+                    return builder.or(predicates).not();
                 else
                     return builder.and(predicates);
             }
