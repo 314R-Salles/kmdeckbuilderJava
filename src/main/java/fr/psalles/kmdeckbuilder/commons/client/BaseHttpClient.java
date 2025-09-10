@@ -106,7 +106,7 @@ public class BaseHttpClient {
             headers.putAll(extraHeaders);
         }
 
-        log.info(url);
+        log.debug(url);
         if (method.equals(HttpMethod.POST)) {
             return restClient.method(method).uri(url)
                     .body(jsonRequest)

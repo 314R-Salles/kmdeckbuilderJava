@@ -10,7 +10,6 @@ import fr.psalles.kmdeckbuilder.models.entities.*;
 import fr.psalles.kmdeckbuilder.models.entities.embedded.*;
 import fr.psalles.kmdeckbuilder.models.entities.projections.DeckView;
 import fr.psalles.kmdeckbuilder.models.entities.projections.UserCount;
-import fr.psalles.kmdeckbuilder.models.entities.projections.VersionView;
 import fr.psalles.kmdeckbuilder.models.enums.Language;
 import fr.psalles.kmdeckbuilder.models.requests.DeckCreateForm;
 import fr.psalles.kmdeckbuilder.models.requests.DeckSearchForm;
@@ -68,6 +67,7 @@ public class DeckService {
     // au lancement de l'appli, rafraichir le compteur de likes en base
     @PostConstruct
     public void init() {
+        log.info("startup likes et favoris");
         deckRepository.initLikesOnDecks();
         favoriteRepository.cleanFavoriteOwner();
     }
@@ -75,6 +75,7 @@ public class DeckService {
     // une fois par semaine, rafraichir le compteur de likes en base
     @Scheduled(cron = "0 0 0 * * SUN")
     public void refresh() {
+        log.info("scheduled cron likes");
         deckRepository.initLikesOnDecks();
     }
 
