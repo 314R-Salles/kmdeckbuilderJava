@@ -12,10 +12,10 @@ import java.util.List;
 public class CardIllustrationService {
 
     @Autowired
-    CardIllustrationsRepository cardRepository;
+    CardIllustrationsRepository cardIllustrationsRepository;
 
-    public List<IllustrationNameEntity> loadAll() {
-        return cardRepository.findAll();
+    public List<IllustrationNameEntity> loadIllustrationsReferential() {
+        return cardIllustrationsRepository.findAll();
     }
 
 

@@ -2,6 +2,8 @@ package fr.psalles.kmdeckbuilder.services;
 
 import fr.psalles.kmdeckbuilder.models.CardDto;
 import fr.psalles.kmdeckbuilder.models.entities.CardEntity;
+import fr.psalles.kmdeckbuilder.models.entities.projections.CardView;
+import fr.psalles.kmdeckbuilder.models.enums.Language;
 import fr.psalles.kmdeckbuilder.models.requests.CardSearchForm;
 import fr.psalles.kmdeckbuilder.repositories.CardRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +11,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 import static fr.psalles.kmdeckbuilder.models.entities.specification.CardSpecification.*;
 
@@ -42,7 +46,7 @@ public class CardService {
                 .rarity(entity.getRarity())
                 .costAP(entity.getCostAP())
                 .godType(entity.getGodType())
-                .name(entity.getName())
+//                .name(entity.getName()) // ne pas renvoyer le nom pour gérer l'i18n coté front?
                 .infiniteName(entity.getInfiniteName())
                 .infiniteLevel(entity.getInfiniteLevel())
                 .life(entity.getLife())
@@ -71,4 +75,9 @@ public class CardService {
                 .movementPoint(entity.getMovementPoint())
                 .build());
     }
+
+    public List<CardView> loadNamesByLanguage(Language language) {
+        return cardRepository.getAllNamesByLanguage(language.name());
+    }
+
 }

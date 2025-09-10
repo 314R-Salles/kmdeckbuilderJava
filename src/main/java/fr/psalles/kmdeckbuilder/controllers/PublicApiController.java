@@ -2,6 +2,7 @@ package fr.psalles.kmdeckbuilder.controllers;
 
 import fr.psalles.kmdeckbuilder.models.*;
 import fr.psalles.kmdeckbuilder.models.entities.IllustrationNameEntity;
+import fr.psalles.kmdeckbuilder.models.entities.projections.CardView;
 import fr.psalles.kmdeckbuilder.models.entities.projections.DeckView;
 import fr.psalles.kmdeckbuilder.models.entities.projections.UserCount;
 import fr.psalles.kmdeckbuilder.models.enums.Language;
@@ -25,9 +26,9 @@ public class PublicApiController {
     private final NewsService newsService;
     private final UserService userService;
     private final CardService cardService;
+    private final CardIllustrationService cardIllustrationService;
     private final DeckService deckService;
     private final TagsService tagsService;
-    private final CardIllustrationService cardIllustrationService;
 
     @Autowired
     public PublicApiController(DeckService deckService,
@@ -133,7 +134,12 @@ public class PublicApiController {
 
     @GetMapping("/cards/illustrations")
     public List<IllustrationNameEntity> loadAllIllustrations() {
-        return cardIllustrationService.loadAll();
+        return cardIllustrationService.loadIllustrationsReferential();
+    }
+
+    @GetMapping("/cards/names/{language}")
+    public List<CardView> loadCardNames(@PathVariable Language language) {
+        return cardService.loadNamesByLanguage(language);
     }
 
     @GetMapping("/tags/language/{language}")
