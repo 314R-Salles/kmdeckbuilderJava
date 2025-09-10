@@ -33,6 +33,8 @@ public class YoutubeSearchResponse {
             private String publishedAt;
             private String title;
 
+            private String liveBroadcastContent; // live ou none
+
             private Map<String, Thumbnail> thumbnails;
 
             @Data

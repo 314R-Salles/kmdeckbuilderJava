@@ -61,6 +61,6 @@ public class Media {
                 duration.toMinutesPart(), duration.toSecondsPart());
         this.profileImage = channel.getSnippet().getThumbnails().get("medium").getUrl();
         this.youtube = true;
-        this.live = false;
+        this.live = "live".equals(originalSearchResult.getSnippet().getLiveBroadcastContent());
     }
 }
