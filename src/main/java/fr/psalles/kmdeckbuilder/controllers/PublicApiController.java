@@ -117,14 +117,14 @@ public class PublicApiController {
         return deckService.findDecks(form);
     }
 
-    @GetMapping("/decks/{deckId}/language/{language}/version/{version}/minorVersion/{minorVersion}")
-    public DeckDto getDeck(@PathVariable String deckId, @PathVariable Language language, @PathVariable Integer version, @PathVariable Integer minorVersion) {
-        return deckService.getDeck(deckId, version, minorVersion, language);
+    @GetMapping("/decks/{deckId}/language/{language}/version/{version}")
+    public DeckDto getDeck(@PathVariable String deckId, @PathVariable Language language, @PathVariable Integer version) {
+        return deckService.getDeck(deckId, version, language);
     }
 
-    @GetMapping("/seo/decks/{deckId}/version/{version}/minorVersion/{minorVersion}")
-    public DeckView getDeckForCrawlers(@PathVariable String deckId, @PathVariable Integer version, @PathVariable Integer minorVersion) {
-        return deckService.getDeckForCrawlers(deckId, version, minorVersion);
+    @GetMapping("/seo/decks/{deckId}/version/{version}")
+    public DeckView getDeckForCrawlers(@PathVariable String deckId, @PathVariable Integer version) {
+        return deckService.getDeckForCrawlers(deckId, version);
     }
 
     @GetMapping("/decks/owners")

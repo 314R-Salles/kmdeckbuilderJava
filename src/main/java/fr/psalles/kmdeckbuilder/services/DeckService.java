@@ -149,16 +149,17 @@ public class DeckService {
             if (!isDuplicate) {
                 lastVersionRepository.delete(new LastVersionEntity(deckIdentity));
                 deckIdentity.setVersion(deckIdentity.getVersion() + 1);
-                deckIdentity.setMinorVersion(0);
+                entity.setMinorVersion(0);
                 entity.setId(deckIdentity);
                 lastVersionRepository.save(new LastVersionEntity(deckIdentity));
             } else {
                 deleteDeckById(deckIdentity.getDeckId(), deckIdentity.getVersion());
-                deckIdentity.setMinorVersion(deckIdentity.getMinorVersion() + 1);
+                entity.setMinorVersion(entity.getMinorVersion() + 1);
                 entity.setId(deckIdentity);
             }
         } else {
-            DeckIdentity deckIdentity = new DeckIdentity(UUID.randomUUID().toString(), 1, 0);
+            DeckIdentity deckIdentity = new DeckIdentity(UUID.randomUUID().toString(), 1);
+            entity.setMinorVersion(0);
             entity.setId(deckIdentity);
             lastVersionRepository.save(new LastVersionEntity(deckIdentity));
             entity.setCreationDate(LocalDateTime.now());
@@ -188,7 +189,7 @@ public class DeckService {
                 }).toList();
 
         entity.getHighlights().addAll(highlights);
-        DeckIdentity identity = deckRepository.save(entity).getId();
+        DeckEntity savedDeck = deckRepository.save(entity);
 
         if (deck.getDeckId() != null) {
             if (isDuplicate) {
@@ -199,7 +200,7 @@ public class DeckService {
         } else {
             log.info("{} ajoute le deck {}", user.getUsername(), deck.getName());
         }
-        return SavedDeckResponse.builder().deckId(identity.getDeckId()).version(identity.getVersion()).minorVersion(identity.getMinorVersion()).build();
+        return SavedDeckResponse.builder().deckId(savedDeck.getId().getDeckId()).version(savedDeck.getId().getVersion()).minorVersion(savedDeck.getMinorVersion()).build();
     }
 
     public Page<DeckDto> findDecks(DeckSearchForm form) {
@@ -245,7 +246,7 @@ public class DeckService {
                     .costAP(entity.getCostAP())
                     .tags(tags)
                     .version(entity.getId().getVersion())
-                    .minorVersion(entity.getId().getMinorVersion())
+                    .minorVersion(entity.getMinorVersion())
                     .favoriteCount(entity.getFavoriteCount())
                     .liked(userFavs.contains(entity.getId().getDeckId()))
                     .highlights(entity.getHighlights().stream()
@@ -284,7 +285,7 @@ public class DeckService {
                     .creationDate(entity.getCreationDate())
                     .costAP(entity.getCostAP())
                     .version(entity.getId().getVersion())
-                    .minorVersion(entity.getId().getMinorVersion())
+                    .minorVersion(entity.getMinorVersion())
                     .favoriteCount(entity.getFavoriteCount())
                     .liked(true)
                     .highlights(entity.getHighlights().stream()
@@ -296,11 +297,11 @@ public class DeckService {
         });
     }
 
-    public DeckDto getDeck(String id, Integer version, Integer minorVersion, Language language) {
+    public DeckDto getDeck(String id, Integer version, Language language) {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
         boolean authenticated = SecurityContextHolder.getContext().getAuthentication().getAuthorities()
                 .stream().map(GrantedAuthority::getAuthority).noneMatch(a -> a.equals("ROLE_ANONYMOUS"));
-        DeckEntity deckEntity = deckRepository.findById(new DeckIdentity(id, version, minorVersion));
+        DeckEntity deckEntity = deckRepository.findById(new DeckIdentity(id, version));
         if (deckEntity == null) {
             log.error("{} essaie d'ouvrir un deck inexistant : {}/{}", userId, id, version);
             throw new ResourceNotFoundException("Ce deck n'existe pas");
@@ -353,7 +354,7 @@ public class DeckService {
                 .creationDate(deckEntity.getCreationDate())
                 .costAP(deckEntity.getCostAP())
                 .version(deckEntity.getId().getVersion())
-                .minorVersion(deckEntity.getId().getMinorVersion())
+                .minorVersion(deckEntity.getMinorVersion())
                 .liked(userFavs.contains(deckEntity.getId().getDeckId()))
                 .versions(versions)
                 .videoLink(deckEntity.getVideoLink())
@@ -366,8 +367,8 @@ public class DeckService {
                 .cards(cardDtos).build();
     }
 
-    public DeckView getDeckForCrawlers(String id, int version, int minorVersion) {
-        return deckRepository.getDeckView(id, version, minorVersion);
+    public DeckView getDeckForCrawlers(String id, int version) {
+        return deckRepository.getDeckView(id, version);
     }
 
     // mettre un cache? qui est wipe à chaque création/suppression de deck?
