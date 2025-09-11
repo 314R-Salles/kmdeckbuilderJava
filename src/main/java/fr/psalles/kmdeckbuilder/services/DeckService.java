@@ -128,9 +128,9 @@ public class DeckService {
             return cardAssociation;
         }).toList();
 
-        boolean isDuplicate = false;
+        boolean hasSameCards = false;
+
         if (deck.getDeckId() != null) {
-            isDuplicate = true;
             DeckEntity oldEntity = deckRepository.findLastVersionForDeckId(deck.getDeckId());
             DeckIdentity deckIdentity = oldEntity.getId();
 
@@ -139,23 +139,24 @@ public class DeckService {
 
             List<CardAssociation> oldCardsAssociation = oldEntity.getCards();
 
+            hasSameCards = true;
             for (CardAssociation association : associations) {
                 if (!oldCardsAssociation.contains(association)) {
-                    isDuplicate = false;
+                    hasSameCards = false;
                     break;
                 }
             }
 
-            if (!isDuplicate) {
+            if (hasSameCards) {
+                deleteDeckById(deckIdentity.getDeckId(), deckIdentity.getVersion());
+                entity.setMinorVersion(oldEntity.getMinorVersion() + 1);
+                entity.setId(deckIdentity);
+            } else {
                 lastVersionRepository.delete(new LastVersionEntity(deckIdentity));
                 deckIdentity.setVersion(deckIdentity.getVersion() + 1);
                 entity.setMinorVersion(0);
                 entity.setId(deckIdentity);
                 lastVersionRepository.save(new LastVersionEntity(deckIdentity));
-            } else {
-                deleteDeckById(deckIdentity.getDeckId(), deckIdentity.getVersion());
-                entity.setMinorVersion(entity.getMinorVersion() + 1);
-                entity.setId(deckIdentity);
             }
         } else {
             DeckIdentity deckIdentity = new DeckIdentity(UUID.randomUUID().toString(), 1);
@@ -192,7 +193,7 @@ public class DeckService {
         DeckEntity savedDeck = deckRepository.save(entity);
 
         if (deck.getDeckId() != null) {
-            if (isDuplicate) {
+            if (hasSameCards) {
                 log.info("{} modifie la description du deck {}", user.getUsername(), deck.getName());
             } else {
                 log.info("{} modifie le deck {}", user.getUsername(), deck.getName());
