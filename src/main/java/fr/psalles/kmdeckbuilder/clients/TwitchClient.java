@@ -69,7 +69,12 @@ public class TwitchClient {
     public VideoCheck checkVideo(String token, String id) {
         String url = "https://api.twitch.tv/helix/videos?id=" + id; // League
         TwitchVideoResponse video = client.makeCall(HttpMethod.GET, url, TwitchVideoResponse.class, null, getAuthHeaders(token));
-        return new VideoCheck("twitch", !video.getData().getFirst().getType().equals("highlight"), true, id);
+        boolean videoExists = !video.getData().isEmpty();
+        if (videoExists) {
+            return new VideoCheck("twitch", !video.getData().getFirst().getType().equals("highlight"), true, id);
+        } else {
+            return new VideoCheck("twitch", false, false, id);
+        }
     }
 
     @Cacheable("twitch_token")

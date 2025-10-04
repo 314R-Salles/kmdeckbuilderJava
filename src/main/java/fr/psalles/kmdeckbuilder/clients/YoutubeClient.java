@@ -34,7 +34,9 @@ public class YoutubeClient {
         String url = "https://youtube.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=15&order=date&q=krosmaga&key=" + key;
 
         List<YoutubeSearchResponse.SearchResult> searchResults = client.makeCall(HttpMethod.GET, url, YoutubeSearchResponse.class, null, null).getItems();
-        List<String> channelIds = searchResults.stream().map(a -> a.getSnippet().getChannelId()).distinct().collect(Collectors.toList());
+        // On ne veut pas afficher les vidéos " A VENIR"
+        searchResults = searchResults.stream().filter(result -> !result.getSnippet().getLiveBroadcastContent().equals("upcoming")).toList();
+        List<String> channelIds = searchResults.stream().map(a -> a.getSnippet().getChannelId()).distinct().toList();
         List<YoutubeChannelResponse.Channel> channels = getChannels(channelIds);
         Map<String, YoutubeChannelResponse.Channel> channelsMap = channels.stream()
                 .collect(Collectors.toMap(YoutubeChannelResponse.Channel::getId, Function.identity(), (a, b) -> a));
@@ -50,7 +52,7 @@ public class YoutubeClient {
                         channelsMap.get(searchResult.getSnippet().getChannelId()),
                         videossMap.get(searchResult.getId().getVideoId()))
                         )
-                .collect(Collectors.toList());
+               .toList();
     }
 
     private List<YoutubeChannelResponse.Channel> getChannels(List<String> channelIds) {
