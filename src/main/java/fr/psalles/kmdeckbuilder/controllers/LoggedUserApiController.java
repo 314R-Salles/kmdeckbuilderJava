@@ -39,6 +39,16 @@ public class LoggedUserApiController {
         return userService.updateUser(user);
     }
 
+    @PostMapping("/user/email")
+    public User sendEmail() {
+        return userService.sendValidationEmail();
+    }
+
+    @PostMapping("/user/email/refresh")
+    public User refreshMailStatus() {
+        return userService.refreshMailStatus();
+    }
+
     @GetMapping("/user/twitch/linkAccount")
     public User linkAccount(@RequestHeader("twitch") String token) {
         return userService.linkTwitch(token);

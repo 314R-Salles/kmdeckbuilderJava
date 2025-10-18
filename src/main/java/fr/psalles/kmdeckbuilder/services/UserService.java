@@ -3,24 +3,45 @@ package fr.psalles.kmdeckbuilder.services;
 import fr.psalles.kmdeckbuilder.commons.exceptions.BusinessException;
 import fr.psalles.kmdeckbuilder.models.User;
 import fr.psalles.kmdeckbuilder.models.entities.UserEntity;
+import fr.psalles.kmdeckbuilder.models.extern.auth0.UserResponse;
 import fr.psalles.kmdeckbuilder.repositories.UserRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
 @Service
 public class UserService {
 
-    @Autowired
-    UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    MediaService mediaService;
+    private final MediaService mediaService;
+
+    private final Auth0Service auth0Service;
+
+    public UserService(UserRepository userRepository,
+                       MediaService mediaService,
+                       Auth0Service auth0Service) {
+        this.userRepository = userRepository;
+        this.mediaService = mediaService;
+        this.auth0Service = auth0Service;
+    }
+
+
+    // Au lancement de l'appli, pour synchro les users vérifiés chez Auth0 et notre bdd. (Api ne marche jusqu'à 1000 résultats)
+    // n'est pas codé pour chainer sur plusieurs pages (ne récupère que 100)
+    @PostConstruct
+    public void init() {
+        log.info("startup verified users");
+        List<String> users = auth0Service.fetchUsers(true).stream().map(UserResponse.User::getUser_id).toList();
+        userRepository.setVerified(users);
+    }
 
     public User checkUser() {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -66,6 +87,29 @@ public class UserService {
 
         user.setUsername(updatedUser.getUsername());
         user.setIconId(updatedUser.getIconId());
+        return new User(userRepository.save(user));
+    }
+
+    public User refreshMailStatus() {
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        boolean verified = auth0Service.fetchUser(userId).isEmail_verified();
+
+        if (verified) {
+            userRepository.setVerified(Collections.singletonList(userId));
+        }
+
+        UserEntity user = userRepository.findByUserId(userId);
+        log.info("{} is verified {} : ", user.getUserId(), verified);
+        return new User(user);
+    }
+
+    public User sendValidationEmail() {
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        auth0Service.sendEmail(userId);
+        UserEntity user = userRepository.findByUserId(userId);
+
+        LocalDateTime now = LocalDateTime.now();
+        user.setLastValidationEmail(now);
         return new User(userRepository.save(user));
     }
 

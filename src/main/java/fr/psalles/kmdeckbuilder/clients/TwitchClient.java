@@ -2,7 +2,11 @@ package fr.psalles.kmdeckbuilder.clients;
 
 import fr.psalles.kmdeckbuilder.commons.client.BaseHttpClient;
 import fr.psalles.kmdeckbuilder.models.VideoCheck;
-import fr.psalles.kmdeckbuilder.models.extern.twitch.*;
+import fr.psalles.kmdeckbuilder.models.extern.TokenResponse;
+import fr.psalles.kmdeckbuilder.models.extern.twitch.TwitchStreamResponse;
+import fr.psalles.kmdeckbuilder.models.extern.twitch.TwitchStreamerResponse;
+import fr.psalles.kmdeckbuilder.models.extern.twitch.TwitchUserResponse;
+import fr.psalles.kmdeckbuilder.models.extern.twitch.TwitchVideoResponse;
 import fr.psalles.kmdeckbuilder.models.responses.Media;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,7 +85,7 @@ public class TwitchClient {
     public String getBearerToken() {
         log.debug("Api call : Auth twitch");
         String url = "https://id.twitch.tv/oauth2/token";
-        return client.makeCall(HttpMethod.POST, url, TwitchAuthResponse.class, "grant_type=client_credentials&client_secret=" +
+        return client.makeCall(HttpMethod.POST, url, TokenResponse.class, "grant_type=client_credentials&client_secret=" +
                         clientSecret + "&client_id=" + clientId,
                 getUrlEncodedHeaders()).getAccess_token();
     }

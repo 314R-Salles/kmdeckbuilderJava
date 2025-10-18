@@ -15,7 +15,9 @@ public class User {
     String username;
     String twitchUsername;
     String lastLogin;
+    String lastEmail;
     Integer iconId;
+    boolean verified;
     boolean isAdmin; // attention la blague de Lombok qui transforme ça en "admin" puisqu'il voit un champ = getter
 
     public User(UserEntity entity) {
@@ -24,6 +26,8 @@ public class User {
         this.lastLogin = entity.getLastLogin().toString();
         this.iconId = entity.getIconId() != null ? entity.getIconId() : 0;
         this.isAdmin = entity.isAdmin();
+        this.verified = entity.isVerified();
+        this.lastEmail = entity.getLastValidationEmail() != null ? entity.getLastValidationEmail().toString() : null;
 
     }
 

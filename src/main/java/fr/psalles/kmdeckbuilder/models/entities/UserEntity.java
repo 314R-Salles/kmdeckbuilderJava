@@ -31,6 +31,9 @@ public class UserEntity {
     private boolean verified;
 
     @Column
+    private LocalDateTime lastValidationEmail;
+
+    @Column
     private String twitchUsername;
 
     @Column
@@ -51,16 +54,6 @@ public class UserEntity {
     )
     @JsonIgnore
     private List<FavoriteAssociation> favorites = new ArrayList<>();
-
-// ? donc non la relation a pas besoin d'etre "symetrique"???
-//    @OneToMany(
-//            fetch = FetchType.LAZY,
-//            cascade = CascadeType.ALL,
-//            orphanRemoval = true,
-//            mappedBy = "userId"
-//    )
-//    @JsonIgnore
-//    private List<DeckEntity> decks = new ArrayList<>();
 
     @Override
     public String toString() {

@@ -16,8 +16,8 @@ import java.util.stream.Stream;
 @Service
 public class MediaService {
 
-    final TwitchClient twitchClient;
-    final YoutubeClient youtubeClient;
+    private final TwitchClient twitchClient;
+    private final YoutubeClient youtubeClient;
 
     public MediaService(
             TwitchClient twitchClient, YoutubeClient youtubeClient

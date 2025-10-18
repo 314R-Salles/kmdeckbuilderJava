@@ -13,7 +13,7 @@ public class CacheConfig {
     @Bean
     public CacheManager cacheManager() {
         return new ConcurrentMapCacheManager(
-                "twitch_token", "current_streams","vods", "youtube_videos"
+                "twitch_token", "current_streams","vods", "youtube_videos", "auth0_token"
         );
     }
 }
