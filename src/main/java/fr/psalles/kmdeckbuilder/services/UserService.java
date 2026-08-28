@@ -69,8 +69,6 @@ public class UserService {
         }
     }
 
-    // findByUserId au lieu de findById pour avoir une méthode qui renvoie pas un Optional
-
     // On ne save pas l'updatedUser, on extrait les données nécessaires.
     // On ne risque pas qu'un petit malin s'update son statut Admin
     // Enfin bon, la vraie bonne pratique c'est faire un DTO

@@ -11,6 +11,7 @@ import fr.psalles.kmdeckbuilder.models.entities.embedded.*;
 import fr.psalles.kmdeckbuilder.models.entities.projections.DeckView;
 import fr.psalles.kmdeckbuilder.models.entities.projections.UserCount;
 import fr.psalles.kmdeckbuilder.models.enums.Language;
+import fr.psalles.kmdeckbuilder.models.enums.SearchBy;
 import fr.psalles.kmdeckbuilder.models.requests.DeckCreateForm;
 import fr.psalles.kmdeckbuilder.models.requests.DeckSearchForm;
 import fr.psalles.kmdeckbuilder.models.responses.SavedDeckResponse;
@@ -109,7 +110,7 @@ public class DeckService {
 
     public SavedDeckResponse saveDeck(DeckCreateForm deck) {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-        UserEntity user = userRepository.findById(userId).get(); // on est obligé d'avoir une valeur ici
+        UserEntity user = userRepository.findByUserId(userId);
 
         DeckEntity entity = new DeckEntity();
 
@@ -209,8 +210,8 @@ public class DeckService {
         boolean authenticated = SecurityContextHolder.getContext().getAuthentication().getAuthorities()
                 .stream().map(GrantedAuthority::getAuthority).noneMatch(a -> a.equals("ROLE_ANONYMOUS"));
 
-        // Je pense que des utilisateurs ont des vieilles pages en cache donc avec ce champ à null
-        String searchByWithDefault = form.getSearchBy() == null ? "RECENT" : form.getSearchBy().getFieldName();
+        String searchBy = getSearchByWithDefault(form);
+        Sort.Direction orderBy = getOrderByWithDefault(form);
         Page<DeckEntity> page = deckRepository.findAll(
                 filterByGod(form.getGods())
                         .and(filterLastVersion())
@@ -220,15 +221,15 @@ public class DeckService {
                         .and(filterByTags(form.getNegativeTags(), true))
                         .and(filterByOwners(form.getUsers(), false))
                         .and(filterByOwners(form.getNegativeUsers(), true))
-                        .and(filterByDust(form.getDustCost(), form.isDustGeq()))
-                        .and(filterByAp(form.getActionPointCost(), form.isActionCostGeq()))
+//                        .and(filterByDust(form.getDustCost(), form.isDustGeq()))
+//                        .and(filterByAp(form.getActionPointCost(), form.isActionCostGeq()))
                         .and(filterByNameLikeContent(form.getContent())
                         )
-                , PageRequest.of(form.getPage(), form.getPageSize(), Sort.Direction.DESC, searchByWithDefault));
+                , PageRequest.of(form.getPage(), form.getPageSize(), orderBy, searchBy));
 
         List<String> userFavs = new ArrayList<>();
         if (authenticated) {
-            UserEntity user = userRepository.findById(userId).get(); // on est obligé d'avoir une valeur ici
+            UserEntity user = userRepository.findByUserId(userId);
             userFavs.addAll(user.getFavorites().stream().map(x -> x.getId().getDeckId()).toList());
         }
 
@@ -259,10 +260,18 @@ public class DeckService {
         });
     }
 
+    private static String getSearchByWithDefault(DeckSearchForm form) {
+        return form.getSearchBy() == null ? SearchBy.RECENT.getFieldName() : form.getSearchBy().getFieldName();
+    }
+
+    private static Sort.Direction getOrderByWithDefault(DeckSearchForm form) {
+        return form.getOrderBy() == null ? Sort.Direction.DESC : form.getOrderBy();
+    }
+
     public Page<DeckDto> findFavoriteDecks(Language language) {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        UserEntity user = userRepository.findById(userId).get(); // on est obligé d'avoir une valeur ici
+        UserEntity user = userRepository.findByUserId(userId);
         List<String> userFavs = user.getFavorites().stream()
                 .sorted(Comparator.comparing(FavoriteAssociation::getFavoriteDate).reversed()).map(x -> x.getId().getDeckId())
                 .limit(30).toList();
@@ -339,7 +348,7 @@ public class DeckService {
         List<String> userFavs = new ArrayList<>();
 
         if (authenticated) {
-            UserEntity user = userRepository.findById(userId).get(); // on est obligé d'avoir une valeur ici
+            UserEntity user = userRepository.findByUserId(userId);
             userFavs.addAll(user.getFavorites().stream().map(x -> x.getId().getDeckId()).toList());
         }
 

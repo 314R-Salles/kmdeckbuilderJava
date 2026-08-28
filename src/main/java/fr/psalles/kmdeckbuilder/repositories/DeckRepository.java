@@ -25,7 +25,7 @@ public interface DeckRepository extends JpaRepository<DeckEntity, String>, JpaSp
 
     @Query(value =
             """
-                    select d.name, u.username from multiwork.km_deck d LEFT JOIN multiwork.km_user u on d.userId = u.userId
+                    select d.name as title, u.username as owner from multiwork.km_deck d LEFT JOIN multiwork.km_user u on d.userId = u.userId
                      where d.deckId = :id and d.version = :version""", nativeQuery = true)
     DeckView getDeckView(String id, int version);
 
