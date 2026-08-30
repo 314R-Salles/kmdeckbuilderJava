@@ -36,12 +36,12 @@ public class UserService {
 
     // Au lancement de l'appli, pour synchro les users vérifiés chez Auth0 et notre bdd. (Api ne marche jusqu'à 1000 résultats)
     // n'est pas codé pour chainer sur plusieurs pages (ne récupère que 100)
-    @PostConstruct
-    public void init() {
-        log.info("startup verified users");
-        List<String> users = auth0Service.fetchUsers(true).stream().map(UserResponse.User::getUser_id).toList();
-        userRepository.setVerified(users);
-    }
+//    @PostConstruct
+//    public void init() {
+//        log.info("startup verified users");
+//        List<String> users = auth0Service.fetchUsers(true).stream().map(UserResponse.User::getUser_id).toList();
+//        userRepository.setVerified(users);
+//    }
 
     public User checkUser() {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
