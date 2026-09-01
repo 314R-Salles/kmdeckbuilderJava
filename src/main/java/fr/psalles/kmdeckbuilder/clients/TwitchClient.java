@@ -9,7 +9,6 @@ import fr.psalles.kmdeckbuilder.models.extern.twitch.TwitchUserResponse;
 import fr.psalles.kmdeckbuilder.models.extern.twitch.TwitchVideoResponse;
 import fr.psalles.kmdeckbuilder.models.responses.Media;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -30,14 +29,17 @@ import java.util.stream.Collectors;
 @Service
 public class TwitchClient {
 
-    @Autowired
-    BaseHttpClient client;
+    private final BaseHttpClient client;
 
     @Value("${twitch.client-id}")
     private String clientId;
 
     @Value("${twitch.client-secret}")
     private String clientSecret;
+
+    public TwitchClient(BaseHttpClient client) {
+        this.client = client;
+    }
 
     public static String getIdConcatenation(List<String> params) {
         return getFieldConcatenation("id", params);

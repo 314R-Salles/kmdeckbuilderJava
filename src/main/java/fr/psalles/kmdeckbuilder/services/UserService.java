@@ -3,16 +3,14 @@ package fr.psalles.kmdeckbuilder.services;
 import fr.psalles.kmdeckbuilder.commons.exceptions.BusinessException;
 import fr.psalles.kmdeckbuilder.models.User;
 import fr.psalles.kmdeckbuilder.models.entities.UserEntity;
-import fr.psalles.kmdeckbuilder.models.extern.auth0.UserResponse;
 import fr.psalles.kmdeckbuilder.repositories.UserRepository;
-import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -43,8 +41,22 @@ public class UserService {
 //        userRepository.setVerified(users);
 //    }
 
+    public static String getUserIdFromSecurityContext() {
+        return SecurityContextHolder.getContext().getAuthentication().getName();
+    }
+
+    public UserEntity getUserReferenceFromSecurityContext() {
+        return userRepository.getReferenceById(getUserIdFromSecurityContext());
+    }
+
+    public static boolean isAuthenticatedInSecurityContext() {
+        return SecurityContextHolder.getContext().getAuthentication().getAuthorities()
+                .stream().map(GrantedAuthority::getAuthority).noneMatch(a -> a.equals("ROLE_ANONYMOUS"));
+    }
+
+
     public User checkUser() {
-        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        String userId = getUserIdFromSecurityContext();
         Optional<UserEntity> user = userRepository.findById(userId);
         // si l'utilisateur n'existe pas, initialisé
         if (user.isEmpty()) {
@@ -73,7 +85,7 @@ public class UserService {
     // On ne risque pas qu'un petit malin s'update son statut Admin
     // Enfin bon, la vraie bonne pratique c'est faire un DTO
     public User updateUser(User updatedUser) {
-        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        String userId = getUserIdFromSecurityContext();
         UserEntity user = userRepository.findByUserId(userId);
         log.info("{} met à jour son pseudo en {}", user.getUsername(), updatedUser.getUsername());
 
@@ -89,7 +101,7 @@ public class UserService {
     }
 
     public User refreshMailStatus() {
-        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        String userId = getUserIdFromSecurityContext();
         boolean verified = auth0Service.fetchUser(userId).isEmail_verified();
 
         if (verified) {
@@ -102,7 +114,7 @@ public class UserService {
     }
 
     public User sendValidationEmail() {
-        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        String userId = getUserIdFromSecurityContext();
         auth0Service.sendEmail(userId);
         UserEntity user = userRepository.findByUserId(userId);
 
@@ -113,7 +125,7 @@ public class UserService {
 
     public User linkTwitch(String token) {
         String username = this.mediaService.getUsernameFromToken(token);
-        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        String userId = getUserIdFromSecurityContext();
         UserEntity user = userRepository.findByUserId(userId);
         log.info("{} associe son compte twitch {}", user.getUsername(), username);
         user.setTwitchUsername(username);
@@ -121,7 +133,7 @@ public class UserService {
     }
 
     public User removeAccount() {
-        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        String userId = getUserIdFromSecurityContext();
         UserEntity user = userRepository.findByUserId(userId);
         log.info("{} dissocie son compte twitch", user.getUsername());
         user.setTwitchUsername(null);

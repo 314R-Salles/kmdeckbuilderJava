@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.psalles.kmdeckbuilder.commons.exceptions.*;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
@@ -21,7 +20,6 @@ public class BaseHttpClient {
     private final ObjectMapper mapper;
     private final RestClient restClient;
 
-    @Autowired
     public BaseHttpClient() {
         this.mapper = new ObjectMapper();
         this.restClient = RestClient.create();
@@ -75,9 +73,9 @@ public class BaseHttpClient {
         try {
             return mapper.writeValueAsString(request);
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            log.error("Erreur lors du formatage d'une requête http", e);
+            throw new TechnicalException("Erreur lors du formatage d'une requête http");
         }
-        return null;
     }
 
     private <R> R parseResponseFromJson(String responseBody, Class<R> responseClass) {

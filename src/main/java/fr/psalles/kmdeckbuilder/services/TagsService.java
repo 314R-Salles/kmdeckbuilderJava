@@ -8,7 +8,6 @@ import fr.psalles.kmdeckbuilder.models.entities.projections.TagCount;
 import fr.psalles.kmdeckbuilder.models.enums.Language;
 import fr.psalles.kmdeckbuilder.repositories.TagsRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,8 +19,11 @@ import java.util.stream.Collectors;
 @Service
 public class TagsService {
 
-    @Autowired
-    TagsRepository tagsRepository;
+    private final TagsRepository tagsRepository;
+
+    public TagsService(TagsRepository tagsRepository) {
+        this.tagsRepository = tagsRepository;
+    }
 
     public void createTagSet(List<TagDto> tags) {
         for (TagDto tag : tags) {

@@ -6,7 +6,6 @@ import fr.psalles.kmdeckbuilder.models.responses.Media;
 import fr.psalles.kmdeckbuilder.models.extern.youtube.YoutubeChannelResponse;
 import fr.psalles.kmdeckbuilder.models.extern.youtube.YoutubeSearchResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -22,11 +21,14 @@ import java.util.stream.Collectors;
 @Service
 public class YoutubeClient {
 
-    @Autowired
-    private BaseHttpClient client;
+    private final BaseHttpClient client;
 
     @Value("${youtube.key}")
     private String key;
+
+    public YoutubeClient(BaseHttpClient client) {
+        this.client = client;
+    }
 
     @Cacheable("youtube_videos")
     public List<Media> getLastVideos() {

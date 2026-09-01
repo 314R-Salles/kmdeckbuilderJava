@@ -7,6 +7,7 @@ import fr.psalles.kmdeckbuilder.models.extern.youtube.YoutubeChannelResponse;
 import fr.psalles.kmdeckbuilder.models.extern.youtube.YoutubeSearchResponse;
 import fr.psalles.kmdeckbuilder.models.extern.youtube.YoutubeVideoResponse;
 import lombok.Data;
+import org.springframework.web.util.HtmlUtils;
 
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -50,8 +51,9 @@ public class Media {
     }
 
     public Media(YoutubeSearchResponse.SearchResult originalSearchResult, YoutubeChannelResponse.Channel channel, YoutubeVideoResponse.Video video) {
-        this.displayName = originalSearchResult.getSnippet().getChannelTitle();
-        this.title = originalSearchResult.getSnippet().getTitle();
+        // Youtube renvoie le titre/nom de chaîne échappés en HTML (ex. &#39; pour une apostrophe)
+        this.displayName = HtmlUtils.htmlUnescape(originalSearchResult.getSnippet().getChannelTitle());
+        this.title = HtmlUtils.htmlUnescape(originalSearchResult.getSnippet().getTitle());
         this.created_at = originalSearchResult.getSnippet().getPublishedAt();
         this.url = "https://www.youtube.com/watch?v=" + originalSearchResult.getId().getVideoId();
         this.thumbnailUrl = originalSearchResult.getSnippet().getThumbnails().get("medium").getUrl();

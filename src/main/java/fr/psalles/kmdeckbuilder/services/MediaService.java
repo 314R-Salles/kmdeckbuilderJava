@@ -37,7 +37,7 @@ public class MediaService {
         } catch (UnauthorizedException e) {
             // on suppose que c'est le token qui a expiré
             twitchClient.evictToken();
-            twitchClient.getBearerToken();
+            token = twitchClient.getBearerToken();
             return twitchClient.getStreams(token);
         }
     }
@@ -49,7 +49,7 @@ public class MediaService {
         } catch (UnauthorizedException e) {
             // on suppose que c'est le token qui a expiré
             twitchClient.evictToken();
-            twitchClient.getBearerToken();
+            token = twitchClient.getBearerToken();
             return twitchClient.getVods(token);
         }
     }
@@ -65,7 +65,7 @@ public class MediaService {
         } catch (UnauthorizedException e) {
             // on suppose que c'est le token qui a expiré
             twitchClient.evictToken();
-            twitchClient.getBearerToken();
+            token = twitchClient.getBearerToken();
             return twitchClient.checkVideo(token, id);
         }
     }

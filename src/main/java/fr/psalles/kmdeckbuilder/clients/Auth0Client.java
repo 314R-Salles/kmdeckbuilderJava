@@ -6,7 +6,6 @@ import fr.psalles.kmdeckbuilder.models.extern.auth0.JobResponse;
 import fr.psalles.kmdeckbuilder.models.extern.auth0.MailRequest;
 import fr.psalles.kmdeckbuilder.models.extern.auth0.UserResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -21,8 +20,7 @@ import java.util.List;
 @Service
 public class Auth0Client {
 
-    @Autowired
-    private BaseHttpClient client;
+    private final BaseHttpClient client;
 
     @Value("${auth0.clientId}")
     private String clientId;
@@ -32,6 +30,10 @@ public class Auth0Client {
 
     @Value("${auth0.domain}")
     private String domain;
+
+    public Auth0Client(BaseHttpClient client) {
+        this.client = client;
+    }
 
     @Cacheable("auth0_token")
     public String getBearerToken() {
