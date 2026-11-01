@@ -18,7 +18,7 @@ public interface DeckRepository extends JpaRepository<DeckEntity, String>, JpaSp
             """
                     select ku.username, T1.count from (select d.userId as userId,  count(*) as count from multiwork.km_deck d
                     INNER JOIN multiwork.km_last_version v on (d.deckId = v.deckId and d.version = v.version)
-                                          group by d.userId) as T1 LEFT JOIN  multiwork.km_user ku on T1.userId = ku.userId""",
+                                          group by d.userId) as T1 LEFT JOIN  multiwork.km_user ku on T1.userId = ku.userId order by ku.username""",
             nativeQuery = true)
     List<UserCount> countOwners();
 

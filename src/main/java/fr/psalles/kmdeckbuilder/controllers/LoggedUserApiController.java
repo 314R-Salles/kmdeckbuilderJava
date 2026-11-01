@@ -8,6 +8,7 @@ import fr.psalles.kmdeckbuilder.models.responses.SavedDeckResponse;
 import fr.psalles.kmdeckbuilder.services.DeckService;
 import fr.psalles.kmdeckbuilder.services.FavoriteDeckService;
 import fr.psalles.kmdeckbuilder.services.UserService;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
@@ -51,6 +52,11 @@ public class LoggedUserApiController {
         return userService.refreshMailStatus();
     }
 
+    @PostMapping("/user/password")
+    public User changePassword() {
+        return userService.requestPasswordChange();
+    }
+
     @GetMapping("/user/twitch/linkAccount")
     public User linkAccount(@RequestHeader("twitch") String token) {
         return userService.linkTwitch(token);
@@ -76,7 +82,7 @@ public class LoggedUserApiController {
     public boolean deleteDeck(@PathVariable String deckId) { return deckService.deleteDeck(deckId);}
 
     @PostMapping("/deck")
-    public SavedDeckResponse saveDeck(@RequestBody DeckCreateForm form) {
+    public SavedDeckResponse saveDeck(@RequestBody @Valid DeckCreateForm form) {
         return deckService.saveDeck(form);
     }
 

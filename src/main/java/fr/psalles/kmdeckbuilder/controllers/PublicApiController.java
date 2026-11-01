@@ -62,7 +62,7 @@ public class PublicApiController {
 
 
     @GetMapping("/user/{username}")
-    public User getUser(@PathVariable String username) {
+    public UserView getUser(@PathVariable String username) {
         return userService.getUser(username);
     }
 

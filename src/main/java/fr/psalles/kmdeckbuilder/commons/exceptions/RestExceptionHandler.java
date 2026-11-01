@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
@@ -41,6 +42,15 @@ public class RestExceptionHandler //extends ResponseEntityExceptionHandler
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<Object> handleMalformedException(Exception ex, WebRequest request) {
         return new ResponseEntity<Object>(ex.getMessage(), null, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Object> handleValidationException(MethodArgumentNotValidException ex, WebRequest request) {
+        String message = ex.getBindingResult().getFieldErrors().stream()
+                .map(error -> error.getField() + " " + error.getDefaultMessage())
+                .reduce((a, b) -> a + ", " + b)
+                .orElse("Requête invalide");
+        return new ResponseEntity<Object>(message, null, HttpStatus.BAD_REQUEST);
     }
 
    @ExceptionHandler(Exception.class)

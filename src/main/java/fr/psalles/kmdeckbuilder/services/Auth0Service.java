@@ -46,6 +46,12 @@ public class Auth0Service {
         }
     }
 
+    public void changePassword(String userId) {
+        String email = fetchUser(userId).getEmail();
+        log.info("Demande de changement de mot de passe pour {}", userId);
+        auth0Client.changePassword(email);
+    }
+
     public UserResponse.User fetchUser(String userId) {
         String token = auth0Client.getBearerToken();
         try {

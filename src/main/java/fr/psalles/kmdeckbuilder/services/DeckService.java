@@ -26,6 +26,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -106,6 +107,7 @@ public class DeckService {
 
     }
 
+    @Transactional
     public SavedDeckResponse saveDeck(DeckCreateForm deck) {
         UserEntity user = userService.getUserReferenceFromSecurityContext();
 

@@ -2,6 +2,7 @@ package fr.psalles.kmdeckbuilder.services;
 
 import fr.psalles.kmdeckbuilder.commons.exceptions.BusinessException;
 import fr.psalles.kmdeckbuilder.models.User;
+import fr.psalles.kmdeckbuilder.models.UserView;
 import fr.psalles.kmdeckbuilder.models.entities.UserEntity;
 import fr.psalles.kmdeckbuilder.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -67,23 +68,16 @@ public class UserService {
         }
     }
 
-    public User getUser(String username) {
+    public UserView getUser(String username) {
         UserEntity user = userRepository.findByUsername(username);
         if (user == null) {
             return null;
         } else {
-            return User.builder()
-                    .username(user.getUsername())
-                    .twitchUsername(user.getTwitchUsername())
-                    .iconId(user.getIconId())
-                    .lastLogin(user.getLastLogin().toString()) // toString )=> formatter
-                    .build();
+            return new UserView(user);
         }
     }
 
     // On ne save pas l'updatedUser, on extrait les données nécessaires.
-    // On ne risque pas qu'un petit malin s'update son statut Admin
-    // Enfin bon, la vraie bonne pratique c'est faire un DTO
     public User updateUser(User updatedUser) {
         String userId = getUserIdFromSecurityContext();
         UserEntity user = userRepository.findByUserId(userId);
@@ -96,7 +90,6 @@ public class UserService {
         }
 
         user.setUsername(updatedUser.getUsername());
-        user.setIconId(updatedUser.getIconId());
         return new User(userRepository.save(user));
     }
 
@@ -120,6 +113,16 @@ public class UserService {
 
         LocalDateTime now = LocalDateTime.now();
         user.setLastValidationEmail(now);
+        return new User(userRepository.save(user));
+    }
+
+    public User requestPasswordChange() {
+        String userId = getUserIdFromSecurityContext();
+        log.info("{} demande un mail de changement de mdp", userId);
+        auth0Service.changePassword(userId);
+        UserEntity user = userRepository.findByUserId(userId);
+
+        user.setLastPasswordChangeRequest(LocalDateTime.now());
         return new User(userRepository.save(user));
     }
 
