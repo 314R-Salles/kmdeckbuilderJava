@@ -1,5 +1,6 @@
 package fr.psalles.kmdeckbuilder.commons.configuration;
 
+import fr.psalles.kmdeckbuilder.commons.logging.UserIdLoggingFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,6 +11,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jwt.*;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 
 import static org.springframework.security.config.Customizer.withDefaults;
@@ -42,7 +44,8 @@ public class SecurityConfig
                 // secure api with admin-scope (feature payante?)
 //                .requestMatchers("/api/private-scoped").hasAuthority("SCOPE_admin"))
 //                .and().cors(withDefaults())
-                .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()));
+                .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()))
+                .addFilterAfter(new UserIdLoggingFilter(), BearerTokenAuthenticationFilter.class);
         return http.build();
     }
 

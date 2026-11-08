@@ -31,7 +31,12 @@ spring:
           # Note the trailing slash is important!
           issuer-uri: https://login.krosmaga.tools/
 
-#logging:
+logging:
+  # Stack traces courtes (voir ShortStackTraceConverter). Retirer cette ligne pour retrouver les traces complètes.
+  exception-conversion-word: "%shortEx"
+  pattern:
+    # Id de l'utilisateur connecté sur chaque ligne (voir UserIdLoggingFilter)
+    correlation: "[%X{userId:-}] "
 #  level:
 #    org.springframework.security: TRACE
 

@@ -18,6 +18,8 @@ import java.util.Optional;
 @Service
 public class UserService {
 
+    private static final long PASSWORD_REQUEST_COOLDOWN_HOURS = 1;
+
     private final UserRepository userRepository;
 
     private final MediaService mediaService;
@@ -118,10 +120,14 @@ public class UserService {
 
     public User requestPasswordChange() {
         String userId = getUserIdFromSecurityContext();
+        UserEntity user = userRepository.findByUserId(userId);
+        LocalDateTime lastRequest = user.getLastPasswordChangeRequest();
+        if (lastRequest != null && lastRequest.isAfter(LocalDateTime.now().minusHours(PASSWORD_REQUEST_COOLDOWN_HOURS))) {
+            throw new BusinessException("Une demande de changement de mot de passe a déjà été envoyée, réessayez plus tard");
+        }
+
         log.info("{} demande un mail de changement de mdp", userId);
         auth0Service.changePassword(userId);
-        UserEntity user = userRepository.findByUserId(userId);
-
         user.setLastPasswordChangeRequest(LocalDateTime.now());
         return new User(userRepository.save(user));
     }
