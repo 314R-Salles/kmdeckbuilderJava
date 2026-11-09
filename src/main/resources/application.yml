@@ -1,6 +1,8 @@
 auth0:
   # Replace with the audience/identifier you configured
   audience: http://localhost:8080
+  # Nom de la connexion Auth0 (Base de données utilisateurs) utilisée pour le changement de mot de passe
+  connection: Username-Password-Authentication
 
 spring:
   datasource:
@@ -29,7 +31,12 @@ spring:
           # Note the trailing slash is important!
           issuer-uri: https://login.krosmaga.tools/
 
-#logging:
+logging:
+  # Stack traces courtes (voir ShortStackTraceConverter). Retirer cette ligne pour retrouver les traces complètes.
+  exception-conversion-word: "%shortEx"
+  pattern:
+    # Id de l'utilisateur connecté sur chaque ligne (voir UserIdLoggingFilter)
+    correlation: "[%X{userId:-}] "
 #  level:
 #    org.springframework.security: TRACE
 

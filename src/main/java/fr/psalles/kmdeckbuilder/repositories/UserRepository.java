@@ -11,6 +11,8 @@ import java.util.List;
 public interface UserRepository extends JpaRepository<UserEntity, String> {
 
     UserEntity findByUsername(String username);
+
+    // Surcharge de findById pour ne pas manipuler un observable
     UserEntity findByUserId(String userId);
 
 

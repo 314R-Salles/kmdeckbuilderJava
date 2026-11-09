@@ -11,7 +11,6 @@ import fr.psalles.kmdeckbuilder.models.requests.DeckSearchForm;
 import fr.psalles.kmdeckbuilder.models.responses.Media;
 import fr.psalles.kmdeckbuilder.services.*;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,7 +29,6 @@ public class PublicApiController {
     private final DeckService deckService;
     private final TagsService tagsService;
 
-    @Autowired
     public PublicApiController(DeckService deckService,
                                MediaService mediaService,
                                NewsService newsService, UserService userService,
@@ -64,7 +62,7 @@ public class PublicApiController {
 
 
     @GetMapping("/user/{username}")
-    public User getUser(@PathVariable String username) {
+    public UserView getUser(@PathVariable String username) {
         return userService.getUser(username);
     }
 

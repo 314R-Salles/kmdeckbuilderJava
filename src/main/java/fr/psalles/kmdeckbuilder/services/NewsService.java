@@ -8,7 +8,6 @@ import fr.psalles.kmdeckbuilder.models.entities.projections.IllustrationView;
 import fr.psalles.kmdeckbuilder.repositories.IllustrationRepository;
 import fr.psalles.kmdeckbuilder.repositories.NewsRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Limit;
 import org.springframework.stereotype.Service;
 
@@ -20,10 +19,13 @@ import java.util.stream.Collectors;
 @Service
 public class NewsService {
 
-    @Autowired
-    IllustrationRepository illustrationRepository;
-    @Autowired
-    NewsRepository newsRepository;
+    private final IllustrationRepository illustrationRepository;
+    private final NewsRepository newsRepository;
+
+    public NewsService(IllustrationRepository illustrationRepository, NewsRepository newsRepository) {
+        this.illustrationRepository = illustrationRepository;
+        this.newsRepository = newsRepository;
+    }
 
     public long saveIllustration(Illustration illustration) {
         NewsIllustrationEntity entity = new NewsIllustrationEntity();

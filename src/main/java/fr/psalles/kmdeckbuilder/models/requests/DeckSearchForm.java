@@ -6,6 +6,7 @@ import fr.psalles.kmdeckbuilder.models.enums.SearchBy;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 
@@ -21,10 +22,11 @@ public class DeckSearchForm {
     private List<Integer> negativeTags;
     private List<String> users;
     private List<String> negativeUsers;
-    private Integer actionPointCost;
-    private Integer dustCost;
-    private boolean dustGeq;
-    private boolean actionCostGeq;
+
+//    private Integer actionPointCost;
+//    private Integer dustCost;
+//    private boolean dustGeq;
+//    private boolean actionCostGeq;
 
     private Integer page;
     private Integer pageSize;
@@ -33,5 +35,6 @@ public class DeckSearchForm {
     private Language language;
 
     private SearchBy searchBy;
+    private Sort.Direction orderBy;
 
 }

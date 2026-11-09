@@ -34,6 +34,9 @@ public class UserEntity {
     private LocalDateTime lastValidationEmail;
 
     @Column
+    private LocalDateTime lastPasswordChangeRequest;
+
+    @Column
     private String twitchUsername;
 
     @Column

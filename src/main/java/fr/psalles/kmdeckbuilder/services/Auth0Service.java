@@ -26,7 +26,7 @@ public class Auth0Service {
         } catch (UnauthorizedException e) {
             // on suppose que c'est le token qui a expiré
             auth0Client.evictToken();
-            auth0Client.getBearerToken();
+            token = auth0Client.getBearerToken();
             String jobId = auth0Client.sendEmail(userId, token);
             log.info("Validation email pour {} : {}", userId, jobId);
             // JobId pas utilisé mais dispo si besoin?
@@ -41,9 +41,15 @@ public class Auth0Service {
         } catch (UnauthorizedException e) {
             // on suppose que c'est le token qui a expiré
             auth0Client.evictToken();
-            auth0Client.getBearerToken();
+            token = auth0Client.getBearerToken();
             return auth0Client.fetchUsers(verified, token);
         }
+    }
+
+    public void changePassword(String userId) {
+        String email = fetchUser(userId).getEmail();
+        log.info("Demande de changement de mot de passe pour {}", userId);
+        auth0Client.changePassword(email);
     }
 
     public UserResponse.User fetchUser(String userId) {
@@ -54,7 +60,7 @@ public class Auth0Service {
         } catch (UnauthorizedException e) {
             // on suppose que c'est le token qui a expiré
             auth0Client.evictToken();
-            auth0Client.getBearerToken();
+            token = auth0Client.getBearerToken();
             return auth0Client.fetchUser(userId, token);
         }
     }

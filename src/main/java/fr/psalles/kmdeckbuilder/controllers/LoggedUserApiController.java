@@ -6,9 +6,10 @@ import fr.psalles.kmdeckbuilder.models.enums.Language;
 import fr.psalles.kmdeckbuilder.models.requests.DeckCreateForm;
 import fr.psalles.kmdeckbuilder.models.responses.SavedDeckResponse;
 import fr.psalles.kmdeckbuilder.services.DeckService;
+import fr.psalles.kmdeckbuilder.services.FavoriteDeckService;
 import fr.psalles.kmdeckbuilder.services.UserService;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,13 +20,15 @@ public class LoggedUserApiController {
 
     private final UserService userService;
     private final DeckService deckService;
+    private final FavoriteDeckService favoriteDeckService;
 
-    @Autowired
     public LoggedUserApiController(UserService userService,
-                                   DeckService deckService
+                                   DeckService deckService,
+                                   FavoriteDeckService favoriteDeckService
     ) {
         this.userService = userService;
         this.deckService = deckService;
+        this.favoriteDeckService = favoriteDeckService;
     }
 
     @GetMapping("/user")
@@ -49,6 +52,11 @@ public class LoggedUserApiController {
         return userService.refreshMailStatus();
     }
 
+    @PostMapping("/user/password")
+    public User changePassword() {
+        return userService.requestPasswordChange();
+    }
+
     @GetMapping("/user/twitch/linkAccount")
     public User linkAccount(@RequestHeader("twitch") String token) {
         return userService.linkTwitch(token);
@@ -62,19 +70,19 @@ public class LoggedUserApiController {
 
     @GetMapping("/user/favorite/add/{deckId}")
     public boolean addFavoriteDeck(@PathVariable String deckId) {
-        return deckService.addFavoriteDeck(deckId);
+        return favoriteDeckService.addFavoriteDeck(deckId);
     }
 
     @GetMapping("/user/favorite/remove/{deckId}")
     public boolean removeFavoriteDeck(@PathVariable String deckId) {
-        return deckService.removeFavoriteDeck(deckId);
+        return favoriteDeckService.removeFavoriteDeck(deckId);
     }
 
     @PostMapping("/deck/{deckId}")
     public boolean deleteDeck(@PathVariable String deckId) { return deckService.deleteDeck(deckId);}
 
     @PostMapping("/deck")
-    public SavedDeckResponse saveDeck(@RequestBody DeckCreateForm form) {
+    public SavedDeckResponse saveDeck(@RequestBody @Valid DeckCreateForm form) {
         return deckService.saveDeck(form);
     }
 

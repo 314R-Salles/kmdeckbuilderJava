@@ -7,24 +7,26 @@ import fr.psalles.kmdeckbuilder.models.DeckDto;
 import fr.psalles.kmdeckbuilder.models.HighlightDto;
 import fr.psalles.kmdeckbuilder.models.SimpleTagDto;
 import fr.psalles.kmdeckbuilder.models.entities.*;
-import fr.psalles.kmdeckbuilder.models.entities.embedded.*;
+import fr.psalles.kmdeckbuilder.models.entities.embedded.AssociationIdentity;
+import fr.psalles.kmdeckbuilder.models.entities.embedded.DeckIdentity;
+import fr.psalles.kmdeckbuilder.models.entities.embedded.Identity;
+import fr.psalles.kmdeckbuilder.models.entities.embedded.TagAssociationIdentity;
 import fr.psalles.kmdeckbuilder.models.entities.projections.DeckView;
 import fr.psalles.kmdeckbuilder.models.entities.projections.UserCount;
 import fr.psalles.kmdeckbuilder.models.enums.Language;
+import fr.psalles.kmdeckbuilder.models.enums.SearchBy;
 import fr.psalles.kmdeckbuilder.models.requests.DeckCreateForm;
 import fr.psalles.kmdeckbuilder.models.requests.DeckSearchForm;
 import fr.psalles.kmdeckbuilder.models.responses.SavedDeckResponse;
 import fr.psalles.kmdeckbuilder.repositories.*;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -38,31 +40,29 @@ import static fr.psalles.kmdeckbuilder.models.entities.specification.DeckSpecifi
 @Service
 public class DeckService {
 
-    @Autowired
-    private DeckRepository deckRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private CardRepository cardRepository;
+    private final DeckRepository deckRepository;
+    private final UserRepository userRepository;
+    private final CardRepository cardRepository;
+    private final TagAssociationRepository tagAssociationRepository;
+    private final HighlightRepository highlightRepository;
+    private final AssociationRepository associationRepository;
+    private final TagsService tagsService;
+    private final FavoriteRepository favoriteRepository;
+    private final LastVersionRepository lastVersionRepository;
+    private final UserService userService;
 
-    @Autowired
-    private TagAssociationRepository tagAssociationRepository;
-
-    @Autowired
-    private HighlightRepository highlightRepository;
-
-    @Autowired
-    private AssociationRepository associationRepository;
-
-    @Autowired
-    private TagsService tagsService;
-
-    @Autowired
-    private FavoriteRepository favoriteRepository;
-
-    @Autowired
-    private LastVersionRepository lastVersionRepository;
-
+    public DeckService(DeckRepository deckRepository, UserRepository userRepository, CardRepository cardRepository, TagAssociationRepository tagAssociationRepository, HighlightRepository highlightRepository, AssociationRepository associationRepository, TagsService tagsService, FavoriteRepository favoriteRepository, LastVersionRepository lastVersionRepository, UserService userService) {
+        this.deckRepository = deckRepository;
+        this.userRepository = userRepository;
+        this.cardRepository = cardRepository;
+        this.tagAssociationRepository = tagAssociationRepository;
+        this.highlightRepository = highlightRepository;
+        this.associationRepository = associationRepository;
+        this.tagsService = tagsService;
+        this.favoriteRepository = favoriteRepository;
+        this.lastVersionRepository = lastVersionRepository;
+        this.userService = userService;
+    }
 
     // au lancement de l'appli, rafraichir le compteur de likes en base
     @PostConstruct
@@ -95,21 +95,21 @@ public class DeckService {
     }
 
     public boolean deleteDeck(String id) {
-        // Some control IN CASE SOMETHING GOES WRONG IN FRONT CHECK because of circonstances of the action.
-        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
         DeckEntity deckEntity = deckRepository.findLastVersionForDeckId(id);
 
-        if (userId.equals(deckEntity.getUserId().getUserId())) {
-            deleteDeckById(id);
-            return true;
-        } else {
+        // Some control IN CASE SOMETHING GOES WRONG IN FRONT CHECK because of circonstances of the action.
+        String userId = UserService.getUserIdFromSecurityContext();
+        if (!userId.equals(deckEntity.getUserId().getUserId())) {
             throw new ForbiddenException("Le deck ne vous appartient pas");
         }
+        deleteDeckById(id);
+        return true;
+
     }
 
+    @Transactional
     public SavedDeckResponse saveDeck(DeckCreateForm deck) {
-        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-        UserEntity user = userRepository.findById(userId).get(); // on est obligé d'avoir une valeur ici
+        UserEntity user = userService.getUserReferenceFromSecurityContext();
 
         DeckEntity entity = new DeckEntity();
 
@@ -132,6 +132,12 @@ public class DeckService {
 
         if (deck.getDeckId() != null) {
             DeckEntity oldEntity = deckRepository.findLastVersionForDeckId(deck.getDeckId());
+            if (oldEntity == null) {
+                throw new ResourceNotFoundException("Ce deck n'existe pas");
+            }
+            if (!oldEntity.getUserId().getUserId().equals(user.getUserId())) {
+                throw new ForbiddenException("Le deck ne vous appartient pas");
+            }
             DeckIdentity deckIdentity = oldEntity.getId();
 
             entity.setCreationDate(oldEntity.getCreationDate());
@@ -194,23 +200,22 @@ public class DeckService {
 
         if (deck.getDeckId() != null) {
             if (hasSameCards) {
-                log.info("{} modifie la description du deck {}", user.getUsername(), deck.getName());
+                log.info("{} modifie la description du deck {}", user.getUserId(), deck.getName());
             } else {
-                log.info("{} modifie le deck {}", user.getUsername(), deck.getName());
+                log.info("{} modifie le deck {}", user.getUserId(), deck.getName());
             }
         } else {
-            log.info("{} ajoute le deck {}", user.getUsername(), deck.getName());
+            log.info("{} ajoute le deck {}", user.getUserId(), deck.getName());
         }
         return SavedDeckResponse.builder().deckId(savedDeck.getId().getDeckId()).version(savedDeck.getId().getVersion()).minorVersion(savedDeck.getMinorVersion()).build();
     }
 
     public Page<DeckDto> findDecks(DeckSearchForm form) {
-        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-        boolean authenticated = SecurityContextHolder.getContext().getAuthentication().getAuthorities()
-                .stream().map(GrantedAuthority::getAuthority).noneMatch(a -> a.equals("ROLE_ANONYMOUS"));
+        String userId = UserService.getUserIdFromSecurityContext();
+        boolean authenticated = UserService.isAuthenticatedInSecurityContext();
 
-        // Je pense que des utilisateurs ont des vieilles pages en cache donc avec ce champ à null
-        String searchByWithDefault = form.getSearchBy() == null ? "RECENT" : form.getSearchBy().getFieldName();
+        String searchBy = getSearchByWithDefault(form);
+        Sort.Direction orderBy = getOrderByWithDefault(form);
         Page<DeckEntity> page = deckRepository.findAll(
                 filterByGod(form.getGods())
                         .and(filterLastVersion())
@@ -220,15 +225,15 @@ public class DeckService {
                         .and(filterByTags(form.getNegativeTags(), true))
                         .and(filterByOwners(form.getUsers(), false))
                         .and(filterByOwners(form.getNegativeUsers(), true))
-                        .and(filterByDust(form.getDustCost(), form.isDustGeq()))
-                        .and(filterByAp(form.getActionPointCost(), form.isActionCostGeq()))
+//                        .and(filterByDust(form.getDustCost(), form.isDustGeq()))
+//                        .and(filterByAp(form.getActionPointCost(), form.isActionCostGeq()))
                         .and(filterByNameLikeContent(form.getContent())
                         )
-                , PageRequest.of(form.getPage(), form.getPageSize(), Sort.Direction.DESC, searchByWithDefault));
+                , PageRequest.of(form.getPage(), form.getPageSize(), orderBy, searchBy));
 
         List<String> userFavs = new ArrayList<>();
         if (authenticated) {
-            UserEntity user = userRepository.findById(userId).get(); // on est obligé d'avoir une valeur ici
+            UserEntity user = userRepository.findByUserId(userId);
             userFavs.addAll(user.getFavorites().stream().map(x -> x.getId().getDeckId()).toList());
         }
 
@@ -259,10 +264,18 @@ public class DeckService {
         });
     }
 
-    public Page<DeckDto> findFavoriteDecks(Language language) {
-        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+    private static String getSearchByWithDefault(DeckSearchForm form) {
+        return form.getSearchBy() == null ? SearchBy.RECENT.getFieldName() : form.getSearchBy().getFieldName();
+    }
 
-        UserEntity user = userRepository.findById(userId).get(); // on est obligé d'avoir une valeur ici
+    private static Sort.Direction getOrderByWithDefault(DeckSearchForm form) {
+        return form.getOrderBy() == null ? Sort.Direction.DESC : form.getOrderBy();
+    }
+
+    public Page<DeckDto> findFavoriteDecks(Language language) {
+        String userId = UserService.getUserIdFromSecurityContext();
+
+        UserEntity user = userRepository.findByUserId(userId);
         List<String> userFavs = user.getFavorites().stream()
                 .sorted(Comparator.comparing(FavoriteAssociation::getFavoriteDate).reversed()).map(x -> x.getId().getDeckId())
                 .limit(30).toList();
@@ -299,9 +312,8 @@ public class DeckService {
     }
 
     public DeckDto getDeck(String id, Integer version, Language language) {
-        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-        boolean authenticated = SecurityContextHolder.getContext().getAuthentication().getAuthorities()
-                .stream().map(GrantedAuthority::getAuthority).noneMatch(a -> a.equals("ROLE_ANONYMOUS"));
+        String userId = UserService.getUserIdFromSecurityContext();
+        boolean authenticated = UserService.isAuthenticatedInSecurityContext();
         DeckEntity deckEntity = deckRepository.findById(new DeckIdentity(id, version));
         if (deckEntity == null) {
             log.error("{} essaie d'ouvrir un deck inexistant : {}/{}", userId, id, version);
@@ -339,7 +351,7 @@ public class DeckService {
         List<String> userFavs = new ArrayList<>();
 
         if (authenticated) {
-            UserEntity user = userRepository.findById(userId).get(); // on est obligé d'avoir une valeur ici
+            UserEntity user = userRepository.findByUserId(userId);
             userFavs.addAll(user.getFavorites().stream().map(x -> x.getId().getDeckId()).toList());
         }
 
@@ -376,40 +388,5 @@ public class DeckService {
     public List<UserCount> loadDeckOwners() {
         return deckRepository.countOwners();
     }
-
-    public boolean addFavoriteDeck(String deckId) {
-        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-        DeckEntity deck = deckRepository.findLastVersionForDeckId(deckId);
-
-        if (!deck.getUserId().getUserId().equals(userId)) {
-            UserEntity user = userRepository.findByUserId(userId);
-
-            FavoriteAssociation favoriteAssociation =
-                    new FavoriteAssociation(new FavoriteAssociationIdentity(deckId, userId), LocalDateTime.now());
-            user.getFavorites().add(favoriteAssociation);
-            userRepository.save(user);
-
-            deckRepository.addLikeOnDeck(deckId);
-
-            return true;
-        } else {
-            throw new ForbiddenException("Le deck ne vous appartient pas");
-        }
-    }
-
-    public boolean removeFavoriteDeck(String deckId) {
-        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-        UserEntity user = userRepository.findByUserId(userId);
-        FavoriteAssociation toBeRemoved = user.getFavorites().stream()
-                .filter(fav -> fav.getId().getDeckId().equals(deckId)).toList().getFirst();
-        user.getFavorites().remove(toBeRemoved);
-        toBeRemoved.setId(null);
-        userRepository.save(user);
-
-        deckRepository.removeLikeOnDeck(deckId);
-
-        return true;
-    }
-
 
 }

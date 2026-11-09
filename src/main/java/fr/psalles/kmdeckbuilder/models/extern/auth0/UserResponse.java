@@ -18,6 +18,7 @@ public class UserResponse extends PaginatedResponse {
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class User {
         String user_id;
+        String email;
         boolean email_verified;
     }
 }

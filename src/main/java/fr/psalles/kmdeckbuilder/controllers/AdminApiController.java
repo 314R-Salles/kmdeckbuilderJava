@@ -6,9 +6,7 @@ import fr.psalles.kmdeckbuilder.models.TagDto;
 import fr.psalles.kmdeckbuilder.models.entities.projections.IllustrationView;
 import fr.psalles.kmdeckbuilder.services.NewsService;
 import fr.psalles.kmdeckbuilder.services.TagsService;
-import fr.psalles.kmdeckbuilder.services.UserService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,7 +24,6 @@ public class AdminApiController {
     private final TagsService tagsService;
 
 
-    @Autowired
     public AdminApiController(NewsService newsService,
                               TagsService tagsService) {
         this.newsService = newsService;

@@ -6,7 +6,6 @@ import fr.psalles.kmdeckbuilder.models.entities.projections.CardView;
 import fr.psalles.kmdeckbuilder.models.enums.Language;
 import fr.psalles.kmdeckbuilder.models.requests.CardSearchForm;
 import fr.psalles.kmdeckbuilder.repositories.CardRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -20,8 +19,11 @@ import static fr.psalles.kmdeckbuilder.models.entities.specification.CardSpecifi
 @Service
 public class CardService {
 
-    @Autowired
-    CardRepository cardRepository;
+    private final CardRepository cardRepository;
+
+    public CardService(CardRepository cardRepository) {
+        this.cardRepository = cardRepository;
+    }
 
     public Page<CardDto> fetchWithSpecs(CardSearchForm cardFilter) {
         Page<CardEntity> page = cardRepository.findAll(

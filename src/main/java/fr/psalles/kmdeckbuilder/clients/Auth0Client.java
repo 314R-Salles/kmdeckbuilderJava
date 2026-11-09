@@ -2,11 +2,11 @@ package fr.psalles.kmdeckbuilder.clients;
 
 import fr.psalles.kmdeckbuilder.commons.client.BaseHttpClient;
 import fr.psalles.kmdeckbuilder.models.extern.TokenResponse;
+import fr.psalles.kmdeckbuilder.models.extern.auth0.ChangePasswordRequest;
 import fr.psalles.kmdeckbuilder.models.extern.auth0.JobResponse;
 import fr.psalles.kmdeckbuilder.models.extern.auth0.MailRequest;
 import fr.psalles.kmdeckbuilder.models.extern.auth0.UserResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -21,8 +21,7 @@ import java.util.List;
 @Service
 public class Auth0Client {
 
-    @Autowired
-    private BaseHttpClient client;
+    private final BaseHttpClient client;
 
     @Value("${auth0.clientId}")
     private String clientId;
@@ -32,6 +31,13 @@ public class Auth0Client {
 
     @Value("${auth0.domain}")
     private String domain;
+
+    @Value("${auth0.connection}")
+    private String connection;
+
+    public Auth0Client(BaseHttpClient client) {
+        this.client = client;
+    }
 
     @Cacheable("auth0_token")
     public String getBearerToken() {
@@ -60,12 +66,18 @@ public class Auth0Client {
     public UserResponse.User fetchUser(String userId, String token) {
         // include_totals=true n'apporte pas d'info mais si on l'enlève, la réponse n'est pas au format "users : []" mais directement []
         // Donc on le met pour avoir le même format de réponse que fetchUsers
-        String url = "https://" + domain + "/api/v2/users?include_totals=true&fields=user_id,email_verified&include_fields=true&q=user_id=" + userId;
+        String url = "https://" + domain + "/api/v2/users?include_totals=true&fields=user_id,email,email_verified&include_fields=true&q=user_id=" + userId;
         UserResponse response = client.makeCall(HttpMethod.GET, url, UserResponse.class, null,
                 getAuthHeaders(token));
         return response.getUsers().getFirst(); // on peut pas faire un appel auth0 sans être connecté donc exister
     }
 
+
+    public String changePassword(String email) {
+        ChangePasswordRequest request = new ChangePasswordRequest(clientId, email, connection);
+        String url = "https://" + domain + "/dbconnections/change_password";
+        return client.makeCall(HttpMethod.POST, url, String.class, request, null);
+    }
 
     private HttpHeaders getUrlEncodedHeaders() {
         HttpHeaders headers = new HttpHeaders();
